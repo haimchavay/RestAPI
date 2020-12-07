@@ -11,6 +11,7 @@ using Pagination.Filter;
 using Pagination.Helpers;
 using Pagination.Services;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace BLL.BusinessLogic
@@ -25,12 +26,29 @@ namespace BLL.BusinessLogic
             var uri = string.Concat(request.Scheme, "://", request.Host.ToUriComponent());
             IUriService uriService = new UriService(uri);
             PaginationFilter validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
-            var pageData = await storeDA.GetPage(validFilter.PageNumber, validFilter.PageSize);
+            List<Store> storeList = await storeDA.GetPage(validFilter.PageNumber, validFilter.PageSize);
+            List<StoreDTO> storeDtoList = new List<StoreDTO>();
+
+            foreach(Store store in storeList)
+            {
+                storeDtoList.Add(new StoreDTO
+                {
+                    Id = store.Id,
+                    Store_Name = store.Store_Name,
+                    Phone = store.Phone,
+                    Email = store.Email,
+                    Street = store.Street,
+                    City = store.City,
+                    Area = store.Area,
+                    Zip_Code = store.Zip_Code
+                });
+            }
+
             int totalRecords = await storeDA.GetRecords();
             Information info = FillInformation(totalRecords, validFilter.PageNumber, validFilter.PageSize);
 
-            var pagedResponse = PaginationHelper.CreatePagedReponse<Store>(
-                pageData, info, validFilter, totalRecords, uriService, route
+            var pagedResponse = PaginationHelper.CreatePagedReponse<StoreDTO>(
+                storeDtoList, info, validFilter, totalRecords, uriService, route
                 );
 
             return new OkObjectResult(pagedResponse);
