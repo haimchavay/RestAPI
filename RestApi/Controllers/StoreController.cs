@@ -1,13 +1,14 @@
 ﻿using BLL.BusinessLogic;
 using BLL.DataTransferObjects;
 using BLL.Interfaces;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Pagination.Filter;
 using System.Threading.Tasks;
 
 namespace RestApi.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class StoreController : ControllerBase

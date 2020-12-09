@@ -28,5 +28,6 @@ namespace DAL.DataContext
 
         }
         public DbSet<Store> Stores { get; set; }
+        public DbSet<UserInfo> UserInfos { get; set; }
     }
 }
