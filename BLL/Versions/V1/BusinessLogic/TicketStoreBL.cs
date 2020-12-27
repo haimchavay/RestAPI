@@ -38,9 +38,7 @@ namespace BLL.Versions.V1.BusinessLogic
                 StoreId = ticketStore.StoreId,
                 TicketTypeId = ticketStore.TicketTypeId,
                 TicketPrice = ticketStore.TicketPrice,
-                TotalPunches = ticketStore.TotalPunches,
-                TempCode = ticketStore.TempCode,
-                CreatedTempDateCode = ticketStore.CreatedTempDateCode
+                TotalPunches = ticketStore.TotalPunches
             };
     }
 }

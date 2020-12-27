@@ -28,6 +28,22 @@ namespace DAL.Versions.V1.DataAccess
                                 .ToListAsync();
         }
 
+        public async Task<ActionResult<TicketUser>> GetTicketUser(long userId, long ticketStoreId)
+        {
+            using var context = new DevTicketDatabaseContext(DevTicketDatabaseContext.ops.dbOptions);
+
+            return await context.TicketsUsers.FirstOrDefaultAsync(tu => tu.UserId == userId &&
+                                                                        tu.TicketStoreId == ticketStoreId);
+        }
+
+        public async Task<ActionResult<TicketUser>> GetTicketUser(int tempCode, long ticketStoreId)
+        {
+            using var context = new DevTicketDatabaseContext(DevTicketDatabaseContext.ops.dbOptions);
+
+            return await context.TicketsUsers.FirstOrDefaultAsync(tu => tu.TempCode == tempCode &&
+                                                                        tu.TicketStoreId == ticketStoreId);
+        }
+
         public async Task<ActionResult<TicketUser>> GetTicketUser(long id)
         {
             using var context = new DevTicketDatabaseContext(DevTicketDatabaseContext.ops.dbOptions);
@@ -42,6 +58,21 @@ namespace DAL.Versions.V1.DataAccess
 
             context.TicketsUsers.Add(ticketUser);
             return await context.SaveChangesAsync();
+        }
+
+        public async Task<int> PutTicketUser(TicketUser ticketUser)
+        {
+            using var context = new DevTicketDatabaseContext(DevTicketDatabaseContext.ops.dbOptions);
+
+            context.Entry(ticketUser).State = EntityState.Modified;
+            return await context.SaveChangesAsync();
+        }
+
+        public bool Exists(long id)
+        {
+            using var context = new DevTicketDatabaseContext(DevTicketDatabaseContext.ops.dbOptions);
+
+            return context.TicketsUsers.Any(e => e.Id == id);
         }
     }
 }

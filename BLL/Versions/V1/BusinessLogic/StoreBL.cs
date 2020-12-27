@@ -64,7 +64,7 @@ namespace BLL.Versions.V1.BusinessLogic
                 return new BadRequestResult();
             }
 
-            ActionResult<Store> action = await storeDA.GetStore((long)storeDTO.Id);
+            ActionResult<Store> action = await storeDA.GetStore(storeDTO.Id);
             if(action == null || action.Value == null)
             {
                 return new NotFoundResult();

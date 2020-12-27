@@ -9,7 +9,5 @@ namespace DAL.Versions.V1.Entities
         public int TicketTypeId { get; set; }
         public int TicketPrice { get; set; }
         public int TotalPunches { get; set; }
-        public int? TempCode { get; set; }
-        public DateTime? CreatedTempDateCode { get; set; }
     }
 }

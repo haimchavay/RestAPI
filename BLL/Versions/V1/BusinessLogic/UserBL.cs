@@ -75,7 +75,7 @@ namespace BLL.Versions.V1.BusinessLogic
                 return new BadRequestResult();
             }
 
-            ActionResult<User> action = await userDA.GetUser((long)user.Id);
+            ActionResult<User> action = await userDA.GetUser(user.Id);
             if (action == null || action.Value == null)
             {
                 return new NotFoundResult();
