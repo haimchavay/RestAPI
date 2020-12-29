@@ -11,7 +11,7 @@ namespace BLL.Versions.V1.Interfaces
         Task<IActionResult> getTicketsUsers();
         Task<IActionResult> getTicketsUser(IIdentity userIdentity);
         Task<IActionResult> GetTicketUser(long id);
-        Task<ActionResult<TicketUserDTO>> PostTicketUser(IIdentity userIdentity, TicketUser ticketUser);
+        Task<ActionResult<TicketUserDTO>> CreateTicketUser(IIdentity userIdentity, TicketUser ticketUser);
         Task<ActionResult<TicketUserDTO>> CreatePunch(long ticketStoreId, int tempCode);
         Task<ActionResult<TicketUserDTO>> GenerateTempCode(IIdentity userIdentity, long ticketStoreId);
     }

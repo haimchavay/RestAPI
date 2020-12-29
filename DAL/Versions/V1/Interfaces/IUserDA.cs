@@ -11,7 +11,7 @@ namespace DAL.Versions.V1.Interfaces
         Task<User> GetUser(string email, string password);
         Task<ActionResult<User>> GetUser(long id);
         Task<int> PutUser(User user);
-        Task<int> PostUser(User user);
+        Task<int> CreateUser(User user);
         Task<int> DeleteUser(User user);
         Task<int> GetRecords();
         bool Exists(long id);

@@ -41,9 +41,9 @@ namespace RestApi.Controllers.Versions.V1
         }*/
 
         [HttpPost]
-        public async Task<ActionResult<UserDTO>> PostUser(User user)
+        public async Task<ActionResult<UserDTO>> CreateUser(User user)
         {
-            return await userBL.PostUser(user);
+            return await userBL.CreateUser(user);
         }
 
         /*[HttpDelete("{id}")]

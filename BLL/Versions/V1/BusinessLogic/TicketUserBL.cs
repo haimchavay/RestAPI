@@ -74,13 +74,21 @@ namespace BLL.Versions.V1.BusinessLogic
 
             return new OkObjectResult(ticketUserDTO);
         }
-        public async Task<ActionResult<TicketUserDTO>> PostTicketUser(IIdentity userIdentity, TicketUser ticketUser)
+        public async Task<ActionResult<TicketUserDTO>> CreateTicketUser(IIdentity userIdentity, TicketUser ticketUser)
         {
             string userIdStr = GetValueFromClaim(userIdentity, "Id");
             long userId = Convert.ToInt64(userIdStr);
             ticketUser.UserId = userId;
 
-            await ticketUserDA.PostTicketUser(ticketUser);
+            #region// Get ticket user
+            ActionResult<TicketUser> actionTicketUser = await ticketUserDA.GetTicketUser(userId, ticketUser.TicketStoreId);
+            if (actionTicketUser != null && actionTicketUser.Value != null)
+            {
+                return new ConflictObjectResult("The ticket already exists");
+            }
+            #endregion
+
+            await ticketUserDA.CreateTicketUser(ticketUser);
 
             return new CreatedAtRouteResult(new { Id = ticketUser.Id }, ItemToDTO(ticketUser));
         }

@@ -108,7 +108,7 @@ namespace BLL.Versions.V1.BusinessLogic
 
             return new NoContentResult();
         }
-        public async Task<ActionResult<UserDTO>> PostUser(User user)
+        public async Task<ActionResult<UserDTO>> CreateUser(User user)
         {
             // User exist in database
             if (IsUserExist(user))
@@ -116,7 +116,7 @@ namespace BLL.Versions.V1.BusinessLogic
                 return new ConflictObjectResult("The user already exists");
             }
 
-            await userDA.PostUser(user);
+            await userDA.CreateUser(user);
 
             return new CreatedAtRouteResult(new { Id = user.Id }, ItemToDTO(user));
         }
@@ -154,7 +154,6 @@ namespace BLL.Versions.V1.BusinessLogic
                     new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString()),
                     new Claim("Id", user.Id.ToString()),
                     new Claim("FirstName", user.FirstName),
-                    new Claim("LastName", user.LastName),
                     new Claim("Phone", user.Phone),
                     new Claim("Email", user.Email)
                    };
@@ -179,7 +178,6 @@ namespace BLL.Versions.V1.BusinessLogic
             new UserDTO
             {
                 FirstName = user.FirstName,
-                LastName = user.LastName,
                 Phone = user.Phone,
                 Email = user.Email,
             };
@@ -188,7 +186,6 @@ namespace BLL.Versions.V1.BusinessLogic
             {
                 Token = token,
                 FirstName = user.FirstName,
-                LastName = user.LastName,
                 Phone = user.Phone,
                 Email = user.Email
             };

@@ -43,7 +43,7 @@ namespace DAL.Versions.V1.DataAccess
             return await context.SaveChangesAsync();
         }
 
-        public async Task<int> PostUser(User user)
+        public async Task<int> CreateUser(User user)
         {
             using var context = new DevTicketDatabaseContext(DevTicketDatabaseContext.ops.dbOptions);
 

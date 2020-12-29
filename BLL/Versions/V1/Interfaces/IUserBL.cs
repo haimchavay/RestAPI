@@ -13,7 +13,7 @@ namespace BLL.Versions.V1.Interfaces
         Task<IActionResult> GetPage(PaginationFilter filter, HttpRequest request);
         Task<IActionResult> GetUser(long id);
         Task<IActionResult> PutUser(long id, User user);
-        Task<ActionResult<UserDTO>> PostUser(User user);
+        Task<ActionResult<UserDTO>> CreateUser(User user);
         Task<IActionResult> DeleteUser(long id);
     }
 }

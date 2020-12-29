@@ -22,6 +22,14 @@ namespace RestApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            // Cross domain
+            services.AddCors(options =>
+            {
+                options.AddPolicy("CorsApi",
+                    builder => builder.WithOrigins("http://localhost:8100", "http://mywebsite.com")
+                .AllowAnyHeader()
+                .AllowAnyMethod());
+            });
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
             {
@@ -47,6 +55,9 @@ namespace RestApi
             }
 
             app.UseHttpsRedirection();
+
+            // Cross domain
+            app.UseCors("CorsApi");
 
             app.UseRouting();
 

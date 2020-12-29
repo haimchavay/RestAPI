@@ -12,7 +12,7 @@ namespace DAL.Versions.V1.Interfaces
         Task<ActionResult<TicketUser>> GetTicketUser(long id);
         Task<ActionResult<TicketUser>> GetTicketUser(long userId, long ticketStoreId);
         Task<ActionResult<TicketUser>> GetTicketUser(int tempCode, long ticketStoreId);
-        Task<int> PostTicketUser(TicketUser ticketUser);
+        Task<int> CreateTicketUser(TicketUser ticketUser);
         Task<int> PutTicketUser(TicketUser ticketUser);
         bool Exists(long id);
     }

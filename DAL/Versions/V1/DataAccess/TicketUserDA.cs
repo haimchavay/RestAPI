@@ -52,7 +52,7 @@ namespace DAL.Versions.V1.DataAccess
             return ticketUser;
         }
 
-        public async Task<int> PostTicketUser(TicketUser ticketUser)
+        public async Task<int> CreateTicketUser(TicketUser ticketUser)
         {
             using var context = new DevTicketDatabaseContext(DevTicketDatabaseContext.ops.dbOptions);
 

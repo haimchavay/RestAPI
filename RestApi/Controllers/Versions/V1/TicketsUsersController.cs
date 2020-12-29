@@ -28,19 +28,19 @@ namespace RestApi.Controllers.Versions.V1
         }
 
         [HttpPost]
-        public async Task<ActionResult<TicketUserDTO>> PostTicketUser(TicketUser ticketUser)
+        public async Task<ActionResult<TicketUserDTO>> CreateTicketUser(TicketUser ticketUser)
         {
-            return await ticketUserBL.PostTicketUser(HttpContext.User.Identity, ticketUser);
+            return await ticketUserBL.CreateTicketUser(HttpContext.User.Identity, ticketUser);
         }
 
         // Needs to pass ticketStoreId and tempCode
-        [HttpPut("punch/")]
+        [HttpPatch("punch/")]
         public async Task<ActionResult<TicketUserDTO>> CreatePunch([FromQuery] TicketUserDTO ticketUserDTO)
         {
             return await ticketUserBL.CreatePunch(ticketUserDTO.TicketStoreId, (int)ticketUserDTO.TempCode);
         }
 
-        [HttpPut("generate/")]
+        [HttpPatch("generate/")]
         public async Task<ActionResult<TicketUserDTO>> GenerateTempCode(long ticketStoreId)
         {
             return await ticketUserBL.GenerateTempCode(HttpContext.User.Identity, ticketStoreId);
