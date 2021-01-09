@@ -166,7 +166,7 @@ namespace BLL.Versions.V1.BusinessLogic
                 configuration["Jwt:Issuer"],
                 configuration["Jwt:Audience"],
                 claims,
-                expires: DateTime.UtcNow.AddDays(1),
+                expires: DateTime.UtcNow.AddYears(1),
                 signingCredentials: signIn);
 
             string tokenStr = new JwtSecurityTokenHandler().WriteToken(token);

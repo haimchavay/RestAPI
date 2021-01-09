@@ -13,5 +13,7 @@
         public string ContactMan2 { get; set; }
         public int StoreTypeId { get; set; }
         public long UserId { get; set; }
+        public string PhotoPath { get; set; }
+        public string Description { get; set; }
     }
 }

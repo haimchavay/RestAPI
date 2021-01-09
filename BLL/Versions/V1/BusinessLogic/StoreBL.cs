@@ -82,6 +82,8 @@ namespace BLL.Versions.V1.BusinessLogic
             store.ContactMan2 = storeDTO.ContactMan2;
             store.StoreTypeId = storeDTO.StoreTypeId;
             store.UserId = storeDTO.UserId;
+            store.PhotoPath = storeDTO.PhotoPath;
+            store.Description = storeDTO.Description;
 
             try
             {
@@ -128,7 +130,9 @@ namespace BLL.Versions.V1.BusinessLogic
                 ContactMan = store.ContactMan,
                 ContactMan2 = store.ContactMan2,
                 StoreTypeId = store.StoreTypeId,
-                UserId = store.UserId
+                UserId = store.UserId,
+                PhotoPath = store.PhotoPath,
+                Description = store.Description
             };
         private static Store DtoToItem(StoreDTO storeDTO) =>
             new Store
@@ -143,7 +147,9 @@ namespace BLL.Versions.V1.BusinessLogic
                 ContactMan = storeDTO.ContactMan,
                 ContactMan2 = storeDTO.ContactMan2,
                 StoreTypeId = storeDTO.StoreTypeId,
-                UserId = storeDTO.UserId
+                UserId = storeDTO.UserId,
+                PhotoPath = storeDTO.PhotoPath,
+                Description = storeDTO.Description
             };
     }
 }
