@@ -13,5 +13,7 @@ namespace BLL.Versions.V1.DataTransferObjects
         public DateTime? LastPunching { get; set; }
         public int? TempCode { get; set; }
         public DateTime? CreatedTempCode { get; set; }
+        public int TotalPunches { get; set; }
+        public string StoreName { get; set; }
     }
 }

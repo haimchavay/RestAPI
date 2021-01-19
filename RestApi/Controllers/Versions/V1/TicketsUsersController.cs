@@ -34,13 +34,13 @@ namespace RestApi.Controllers.Versions.V1
         }
 
         // Needs to pass ticketStoreId and tempCode
-        [HttpPatch("punch/")]
+        [HttpGet("punch/")]
         public async Task<ActionResult<TicketUserDTO>> CreatePunch([FromQuery] TicketUserDTO ticketUserDTO)
         {
             return await ticketUserBL.CreatePunch(ticketUserDTO.TicketStoreId, (int)ticketUserDTO.TempCode);
         }
 
-        [HttpPatch("generate/")]
+        [HttpGet("generate/")]
         public async Task<ActionResult<TicketUserDTO>> GenerateTempCode(long ticketStoreId)
         {
             return await ticketUserBL.GenerateTempCode(HttpContext.User.Identity, ticketStoreId);

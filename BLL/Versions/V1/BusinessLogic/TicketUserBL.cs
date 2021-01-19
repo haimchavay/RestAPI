@@ -20,6 +20,7 @@ namespace BLL.Versions.V1.BusinessLogic
 
         private readonly ITicketUserDA ticketUserDA = new TicketUserDA();
         private readonly ITicketStoreDA ticketStoreDA = new TicketStoreDA();
+        private readonly IStoreDA storeDA = new StoreDA();
 
         public async Task<IActionResult> getTicketsUsers()
         {
@@ -34,7 +35,23 @@ namespace BLL.Versions.V1.BusinessLogic
 
             foreach (TicketUser ticket in ticketsUserList)
             {
-                ticketsUserDTOList.Add(ItemToDTO(ticket));
+                // Get total punches
+                ActionResult<TicketStore> ticketStoreAction = await ticketStoreDA.GetTicketStore(ticket.TicketStoreId);
+                if (ticketStoreAction == null || ticketStoreAction.Value == null)
+                {
+                    return new NotFoundResult();
+                }
+                TicketStore ticketStore = ticketStoreAction.Value;
+
+                // Get store name
+                ActionResult<Store> storeAction = await storeDA.GetStore(ticketStore.StoreId);
+                if (storeAction == null || storeAction.Value == null)
+                {
+                    return new NotFoundResult();
+                }
+                Store store = storeAction.Value;
+
+                ticketsUserDTOList.Add(ItemToDTO(ticket, ticketStore.TotalPunches, store.Name));
             }
 
             return new OkObjectResult(ticketsUserDTOList);
@@ -55,7 +72,23 @@ namespace BLL.Versions.V1.BusinessLogic
 
             foreach(TicketUser ticket in ticketsUserList)
             {
-                ticketsUserDTOList.Add(ItemToDTO(ticket));
+                // Get total punches
+                ActionResult<TicketStore> ticketStoreAction = await ticketStoreDA.GetTicketStore(ticket.TicketStoreId);
+                if (ticketStoreAction == null || ticketStoreAction.Value == null)
+                {
+                    return new NotFoundResult();
+                }
+                TicketStore ticketStore = ticketStoreAction.Value;
+
+                // Get store name
+                ActionResult<Store> storeAction = await storeDA.GetStore(ticketStore.StoreId);
+                if (storeAction == null || storeAction.Value == null)
+                {
+                    return new NotFoundResult();
+                }
+                Store store = storeAction.Value;
+
+                ticketsUserDTOList.Add(ItemToDTO(ticket, ticketStore.TotalPunches, store.Name));
             }
 
             return new OkObjectResult(ticketsUserDTOList);
@@ -70,7 +103,24 @@ namespace BLL.Versions.V1.BusinessLogic
             }
 
             TicketUser ticketUser = action.Value;
-            TicketUserDTO ticketUserDTO = ItemToDTO(ticketUser);
+
+            // Get total punches
+            ActionResult<TicketStore> ticketStoreAction = await ticketStoreDA.GetTicketStore(ticketUser.TicketStoreId);
+            if (ticketStoreAction == null || ticketStoreAction.Value == null)
+            {
+                return new NotFoundResult();
+            }
+            TicketStore ticketStore = ticketStoreAction.Value;
+
+            // Get store name
+            ActionResult<Store> storeAction = await storeDA.GetStore(ticketStore.StoreId);
+            if (storeAction == null || storeAction.Value == null)
+            {
+                return new NotFoundResult();
+            }
+            Store store = storeAction.Value;
+
+            TicketUserDTO ticketUserDTO = ItemToDTO(ticketUser, ticketStore.TotalPunches, store.Name);
 
             return new OkObjectResult(ticketUserDTO);
         }
@@ -90,7 +140,26 @@ namespace BLL.Versions.V1.BusinessLogic
 
             await ticketUserDA.CreateTicketUser(ticketUser);
 
-            return new CreatedAtRouteResult(new { Id = ticketUser.Id }, ItemToDTO(ticketUser));
+            // Get total punches
+            ActionResult<TicketStore> ticketStoreAction = await ticketStoreDA.GetTicketStore(ticketUser.TicketStoreId);
+            if (ticketStoreAction == null || ticketStoreAction.Value == null)
+            {
+                return new NotFoundResult();
+            }
+            TicketStore ticketStore = ticketStoreAction.Value;
+
+            // Get store name
+            ActionResult<Store> storeAction = await storeDA.GetStore(ticketStore.StoreId);
+            if (storeAction == null || storeAction.Value == null)
+            {
+                return new NotFoundResult();
+            }
+            Store store = storeAction.Value;
+
+            // TODO: Join with 3 tables and get DTO with 2 extra parameters
+
+            return new CreatedAtRouteResult(new { Id = ticketUser.Id },
+                ItemToDTO(ticketUser, ticketStore.TotalPunches, store.Name));
         }
         public async Task<ActionResult<TicketUserDTO>> CreatePunch(long ticketStoreId, int tempCode)
         {
@@ -145,7 +214,15 @@ namespace BLL.Versions.V1.BusinessLogic
             }
             #endregion
 
-            return new OkObjectResult(ItemToDTO(ticketUser));
+            // Get store name
+            ActionResult<Store> storeAction = await storeDA.GetStore(ticketStore.StoreId);
+            if (storeAction == null || storeAction.Value == null)
+            {
+                return new NotFoundResult();
+            }
+            Store store = storeAction.Value;
+
+            return new OkObjectResult(ItemToDTO(ticketUser, ticketStore.TotalPunches, store.Name));
         }
         public async Task<ActionResult<TicketUserDTO>> GenerateTempCode(IIdentity userIdentity, long ticketStoreId)
         {
@@ -214,10 +291,18 @@ namespace BLL.Versions.V1.BusinessLogic
             }
             #endregion
 
-            return new OkObjectResult(ItemToDTO(ticketUser));
+            // Get store name
+            ActionResult<Store> storeAction = await storeDA.GetStore(ticketStore.StoreId);
+            if (storeAction == null || storeAction.Value == null)
+            {
+                return new NotFoundResult();
+            }
+            Store store = storeAction.Value;
+
+            return new OkObjectResult(ItemToDTO(ticketUser, ticketStore.TotalPunches, store.Name));
         }
 
-        private static TicketUserDTO ItemToDTO(TicketUser ticketUser) =>
+        /*private static TicketUserDTO ItemToDTO(TicketUser ticketUser) =>
             new TicketUserDTO
             {
                 Id = ticketUser.Id,
@@ -229,6 +314,22 @@ namespace BLL.Versions.V1.BusinessLogic
                 LastPunching = ticketUser.LastPunching,
                 TempCode = ticketUser.TempCode,
                 CreatedTempCode = ticketUser.CreatedTempCode
+            };*/
+
+        private static TicketUserDTO ItemToDTO(TicketUser ticketUser, int totalPunches, string storeName) =>
+            new TicketUserDTO
+            {
+                Id = ticketUser.Id,
+                UserId = ticketUser.UserId,
+                TicketStoreId = ticketUser.TicketStoreId,
+                Punch = ticketUser.Punch,
+                Status = ticketUser.Status,
+                CreatedDate = ticketUser.CreatedDate,
+                LastPunching = ticketUser.LastPunching,
+                TempCode = ticketUser.TempCode,
+                CreatedTempCode = ticketUser.CreatedTempCode,
+                TotalPunches = totalPunches,
+                StoreName = storeName
             };
         private static string GetValueFromClaim(IIdentity userIdentity, string key)
         {
