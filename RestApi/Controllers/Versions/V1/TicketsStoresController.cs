@@ -13,16 +13,16 @@ namespace RestApi.Controllers.Versions.V1
     {
         private readonly ITicketStoreBL ticketStoreBL = new TicketStoreBL();
 
-        [HttpGet]
+        [HttpGet("admin/")]
         public async Task<IActionResult> GetTicketsStores()
         {
             return await ticketStoreBL.GetTicketsStores(HttpContext.User.Identity);
         }
 
-        /*[HttpGet]
+        [HttpGet]
         public async Task<IActionResult> GetTicketsStore(long storeId)
         {
             return await ticketStoreBL.GetTicketsStore(storeId);
-        }*/
+        }
     }
 }
