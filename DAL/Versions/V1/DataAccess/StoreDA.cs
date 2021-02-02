@@ -29,6 +29,15 @@ namespace DAL.Versions.V1.DataAccess
             return await context.Stores.FindAsync(id);
         }
 
+        public async Task<List<Store>> GetStores(long userId)
+        {
+            using var context = new DevTicketDatabaseContext(DevTicketDatabaseContext.ops.dbOptions);
+
+            return await context.Stores
+                .Where(s => s.UserId == userId)
+                .ToListAsync();
+        }
+
         public async Task<int> PutStore(Store store)
         {
             using var context = new DevTicketDatabaseContext(DevTicketDatabaseContext.ops.dbOptions);

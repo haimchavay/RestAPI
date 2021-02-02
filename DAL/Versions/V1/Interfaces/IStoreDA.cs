@@ -9,6 +9,7 @@ namespace DAL.Versions.V1.Interfaces
     {
         Task<List<Store>> GetPage(int pageNumber, int pageSize);
         Task<ActionResult<Store>> GetStore(long id);
+        Task<List<Store>> GetStores(long userId);
         Task<int> PutStore(Store store);
         Task<int> PostStore(Store store);
         Task<int> DeleteStore(Store store);
