@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace DAL.Versions.V1.Entities
+﻿namespace DAL.Versions.V1.Entities
 {
     public class TicketStore
     {
