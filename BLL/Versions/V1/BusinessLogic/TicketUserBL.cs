@@ -60,7 +60,7 @@ namespace BLL.Versions.V1.BusinessLogic
                 }
                 TicketType ticketType = ticketTypeAction.Value;
 
-                ticketsUserDTOList.Add(ItemToDTO(ticket, ticketStore.TotalPunches, store.Name, ticketType.Type));
+                ticketsUserDTOList.Add(ItemToDTO(ticket, ticketStore.TotalPunches, store.Name, ticketType.Id));
             }
 
             return new OkObjectResult(ticketsUserDTOList);
@@ -105,7 +105,7 @@ namespace BLL.Versions.V1.BusinessLogic
                 }
                 TicketType ticketType = ticketTypeAction.Value;
 
-                ticketsUserDTOList.Add(ItemToDTO(ticket, ticketStore.TotalPunches, store.Name, ticketType.Type));
+                ticketsUserDTOList.Add(ItemToDTO(ticket, ticketStore.TotalPunches, store.Name, ticketType.Id));
             }
 
             return new OkObjectResult(ticketsUserDTOList);
@@ -145,7 +145,7 @@ namespace BLL.Versions.V1.BusinessLogic
             }
             TicketType ticketType = ticketTypeAction.Value;
 
-            TicketUserDTO ticketUserDTO = ItemToDTO(ticketUser, ticketStore.TotalPunches, store.Name, ticketType.Type);
+            TicketUserDTO ticketUserDTO = ItemToDTO(ticketUser, ticketStore.TotalPunches, store.Name, ticketType.Id);
 
             return new OkObjectResult(ticketUserDTO);
         }
@@ -190,7 +190,7 @@ namespace BLL.Versions.V1.BusinessLogic
             TicketType ticketType = ticketTypeAction.Value;
 
             return new CreatedAtRouteResult(new { Id = ticketUser.Id },
-                ItemToDTO(ticketUser, ticketStore.TotalPunches, store.Name, ticketType.Type));
+                ItemToDTO(ticketUser, ticketStore.TotalPunches, store.Name, ticketType.Id));
         }
         public async Task<ActionResult<TicketUserDTO>> CreatePunch(long ticketStoreId, int tempCode)
         {
@@ -261,7 +261,7 @@ namespace BLL.Versions.V1.BusinessLogic
             }
             TicketType ticketType = ticketTypeAction.Value;
 
-            return new OkObjectResult(ItemToDTO(ticketUser, ticketStore.TotalPunches, store.Name, ticketType.Type));
+            return new OkObjectResult(ItemToDTO(ticketUser, ticketStore.TotalPunches, store.Name, ticketType.Id));
         }
         public async Task<ActionResult<TicketUserDTO>> GenerateTempCode(IIdentity userIdentity, long ticketStoreId)
         {
@@ -346,7 +346,7 @@ namespace BLL.Versions.V1.BusinessLogic
             }
             TicketType ticketType = ticketTypeAction.Value;
 
-            return new OkObjectResult(ItemToDTO(ticketUser, ticketStore.TotalPunches, store.Name, ticketType.Type));
+            return new OkObjectResult(ItemToDTO(ticketUser, ticketStore.TotalPunches, store.Name, ticketType.Id));
         }
 
         /*private static TicketUserDTO ItemToDTO(TicketUser ticketUser) =>
@@ -364,7 +364,7 @@ namespace BLL.Versions.V1.BusinessLogic
             };*/
 
         private static TicketUserDTO ItemToDTO(TicketUser ticketUser,
-            int totalPunches, string storeName, string ticketType) =>
+            int totalPunches, string storeName, int ticketTypeId) =>
             new TicketUserDTO
             {
                 Id = ticketUser.Id,
@@ -378,7 +378,7 @@ namespace BLL.Versions.V1.BusinessLogic
                 CreatedTempCode = ticketUser.CreatedTempCode,
                 TotalPunches = totalPunches,
                 StoreName = storeName,
-                TicketType = ticketType
+                TicketTypeId = ticketTypeId
             };
         private static string GetValueFromClaim(IIdentity userIdentity, string key)
         {

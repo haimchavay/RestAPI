@@ -15,6 +15,6 @@ namespace BLL.Versions.V1.DataTransferObjects
         public DateTime? CreatedTempCode { get; set; }
         public int TotalPunches { get; set; }
         public string StoreName { get; set; }
-        public string TicketType { get; set; }
+        public int TicketTypeId { get; set; }
     }
 }
