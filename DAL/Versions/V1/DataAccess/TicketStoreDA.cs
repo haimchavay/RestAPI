@@ -11,24 +11,26 @@ namespace DAL.Versions.V1.DataAccess
 {
     public class TicketStoreDA : ITicketStoreDA
     {
-        public async Task<List<TicketStore>> GetTicketsStores(long[] storeIdArr)
+        public async Task<List<TicketStore>> GetTicketsStoresWithJoin(long userId)
         {
             using var context = new DevTicketDatabaseContext(DevTicketDatabaseContext.ops.dbOptions);
 
-            string whereCondition = string.Format("WHERE StoreId = {0}", storeIdArr[0]);
-            for(int i = 1; i < storeIdArr.Length; i++)
-            {
-                string condition = string.Format(" or StoreId = {0}", storeIdArr[i]);
-                whereCondition += condition;
-            }
-            string cmd = string.Format("SELECT * FROM [DevTicket].[dbo].[TicketsStores]" +
-                " {0};", whereCondition);
+            var data = (from s in context.Stores
+                        join ts in context.TicketsStores
+                        on s.Id equals ts.StoreId
+                        where s.UserId == userId
+                        select new TicketStore
+                        {
+                            Id = ts.Id,
+                            StoreId = ts.StoreId,
+                            TicketTypeId = ts.TicketTypeId,
+                            TicketPrice = ts.TicketPrice,
+                            TotalPunches = ts.TotalPunches
+                        }).ToListAsync();
 
-            /*string cmd = "SELECT * FROM [DevTicket].[dbo].[TicketsStores]" +
-                " WHERE StoreId = 1 or StoreId = 3;";*/
-
-            return await context.TicketsStores.FromSqlRaw(cmd).ToListAsync();
+            return await data;
         }
+ 
         public async Task<List<TicketStore>> GetTicketsStore(long storeId)
         {
             using var context = new DevTicketDatabaseContext(DevTicketDatabaseContext.ops.dbOptions);

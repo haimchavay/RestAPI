@@ -19,15 +19,72 @@ namespace DAL.Versions.V1.DataAccess
                                 .ToListAsync();
         }
 
-        public async Task<List<TicketUser>> GetTicketsUser(long userId)
+        public async Task<List<TicketUserJoinTicketStoreJoinStore>> GetTicketsUserWithJoin(long userId)
+        {
+            using var context = new DevTicketDatabaseContext(DevTicketDatabaseContext.ops.dbOptions);
+
+            var data = (from tu in context.TicketsUsers
+                        join ts in context.TicketsStores
+                        on tu.TicketStoreId equals ts.Id
+                        join s in context.Stores
+                        on ts.StoreId equals s.Id
+                        where tu.UserId == userId
+                        select new TicketUserJoinTicketStoreJoinStore
+                        {
+                            Id = tu.Id,
+                            UserId = tu.UserId,
+                            TicketStoreId = tu.TicketStoreId,
+                            Punch = tu.Punch,
+                            Status = tu.Status,
+                            CreatedDate = tu.CreatedDate,
+                            LastPunching = tu.LastPunching,
+                            TempCode = tu.TempCode,
+                            CreatedTempCode = tu.CreatedTempCode,
+                            TotalPunches = ts.TotalPunches,
+                            StoreName = s.Name,
+                            TicketTypeId = ts.TicketTypeId
+                        }).ToListAsync();
+
+            return await data;
+        }
+
+        /*public async Task<List<TicketUser>> GetTicketsUser(long userId)
         {
             using var context = new DevTicketDatabaseContext(DevTicketDatabaseContext.ops.dbOptions);
 
             return await context.TicketsUsers
                                 .Where(tu => tu.UserId == userId)
                                 .ToListAsync();
-        }
+        }*/
 
+        public async Task<List<TicketUserJoinTicketStoreJoinStore>> GetTicketUserWithJoin(long userId, long ticketStoreId)
+        {
+            using var context = new DevTicketDatabaseContext(DevTicketDatabaseContext.ops.dbOptions);
+
+            var data = (from tu in context.TicketsUsers
+                        join ts in context.TicketsStores
+                        on tu.TicketStoreId equals ts.Id
+                        join s in context.Stores
+                        on ts.StoreId equals s.Id
+                        where tu.UserId == userId && ts.Id == ticketStoreId
+                        select new TicketUserJoinTicketStoreJoinStore
+                        {
+                            Id = tu.Id,
+                            UserId = tu.UserId,
+                            TicketStoreId = tu.TicketStoreId,
+                            Punch = tu.Punch,
+                            Status = tu.Status,
+                            CreatedDate = tu.CreatedDate,
+                            LastPunching = tu.LastPunching,
+                            TempCode = tu.TempCode,
+                            CreatedTempCode = tu.CreatedTempCode,
+                            TotalPunches = ts.TotalPunches,
+                            StoreName = s.Name,
+                            TicketTypeId = ts.TicketTypeId
+                        }).ToListAsync();
+
+            return await data;
+        }
         public async Task<ActionResult<TicketUser>> GetTicketUser(long userId, long ticketStoreId)
         {
             using var context = new DevTicketDatabaseContext(DevTicketDatabaseContext.ops.dbOptions);
@@ -44,13 +101,13 @@ namespace DAL.Versions.V1.DataAccess
                                                                         tu.TicketStoreId == ticketStoreId);
         }
 
-        public async Task<ActionResult<TicketUser>> GetTicketUser(long id)
+        /*public async Task<ActionResult<TicketUser>> GetTicketUser(long id)
         {
             using var context = new DevTicketDatabaseContext(DevTicketDatabaseContext.ops.dbOptions);
             var ticketUser = await context.TicketsUsers.FindAsync(id);
 
             return ticketUser;
-        }
+        }*/
 
         public async Task<int> CreateTicketUser(TicketUser ticketUser)
         {

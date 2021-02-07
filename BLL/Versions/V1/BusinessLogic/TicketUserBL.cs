@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 
 namespace BLL.Versions.V1.BusinessLogic
 {
@@ -70,47 +69,17 @@ namespace BLL.Versions.V1.BusinessLogic
             string userIdStr = GetValueFromClaim(userIdentity, "Id");
             long userId = Convert.ToInt64(userIdStr);
 
-            ActionResult<List<TicketUser>> action = await ticketUserDA.GetTicketsUser(userId);
-            if (action == null || action.Value == null)
+            ActionResult<List<TicketUserJoinTicketStoreJoinStore>> actionJoin =
+                await ticketUserDA.GetTicketsUserWithJoin(userId);
+            if (actionJoin == null || actionJoin.Value == null)
             {
                 return new NotFoundResult();
             }
+            List<TicketUserJoinTicketStoreJoinStore> ticketJoin = actionJoin.Value;
 
-            List<TicketUser> ticketsUserList = action.Value;
-            List<TicketUserDTO> ticketsUserDTOList = new List<TicketUserDTO>();
-
-            foreach(TicketUser ticket in ticketsUserList)
-            {
-                // Get total punches
-                ActionResult<TicketStore> ticketStoreAction = await ticketStoreDA.GetTicketStore(ticket.TicketStoreId);
-                if (ticketStoreAction == null || ticketStoreAction.Value == null)
-                {
-                    return new NotFoundResult();
-                }
-                TicketStore ticketStore = ticketStoreAction.Value;
-
-                // Get store name
-                ActionResult<Store> storeAction = await storeDA.GetStore(ticketStore.StoreId);
-                if (storeAction == null || storeAction.Value == null)
-                {
-                    return new NotFoundResult();
-                }
-                Store store = storeAction.Value;
-
-                // Get ticket type
-                ActionResult<TicketType> ticketTypeAction = await ticketTypeDA.GetTicketType(ticketStore.TicketTypeId);
-                if (ticketTypeAction == null || ticketTypeAction.Value == null)
-                {
-                    return new NotFoundResult();
-                }
-                TicketType ticketType = ticketTypeAction.Value;
-
-                ticketsUserDTOList.Add(ItemToDTO(ticket, ticketStore.TotalPunches, store.Name, ticketType.Id));
-            }
-
-            return new OkObjectResult(ticketsUserDTOList);
+            return new OkObjectResult(ticketJoin);
         }
-        public async Task<IActionResult> GetTicketUser(long id)
+        /*public async Task<IActionResult> GetTicketUser(long id)
         {
             ActionResult<TicketUser> action = await ticketUserDA.GetTicketUser(id);
 
@@ -148,7 +117,7 @@ namespace BLL.Versions.V1.BusinessLogic
             TicketUserDTO ticketUserDTO = ItemToDTO(ticketUser, ticketStore.TotalPunches, store.Name, ticketType.Id);
 
             return new OkObjectResult(ticketUserDTO);
-        }
+        }*/
         public async Task<ActionResult<TicketUserDTO>> CreateTicketUser(IIdentity userIdentity, TicketUser ticketUser)
         {
             string userIdStr = GetValueFromClaim(userIdentity, "Id");
@@ -165,32 +134,15 @@ namespace BLL.Versions.V1.BusinessLogic
 
             await ticketUserDA.CreateTicketUser(ticketUser);
 
-            // Get total punches
-            ActionResult<TicketStore> ticketStoreAction = await ticketStoreDA.GetTicketStore(ticketUser.TicketStoreId);
-            if (ticketStoreAction == null || ticketStoreAction.Value == null)
+            ActionResult<List<TicketUserJoinTicketStoreJoinStore>> actionJoin =
+                await ticketUserDA.GetTicketUserWithJoin(userId, ticketUser.TicketStoreId);
+            if (actionJoin == null || actionJoin.Value == null)
             {
                 return new NotFoundResult();
             }
-            TicketStore ticketStore = ticketStoreAction.Value;
+            List<TicketUserJoinTicketStoreJoinStore> ticketJoin = actionJoin.Value;
 
-            // Get store name
-            ActionResult<Store> storeAction = await storeDA.GetStore(ticketStore.StoreId);
-            if (storeAction == null || storeAction.Value == null)
-            {
-                return new NotFoundResult();
-            }
-            Store store = storeAction.Value;
-
-            // Get ticket type
-            ActionResult<TicketType> ticketTypeAction = await ticketTypeDA.GetTicketType(ticketStore.TicketTypeId);
-            if (ticketTypeAction == null || ticketTypeAction.Value == null)
-            {
-                return new NotFoundResult();
-            }
-            TicketType ticketType = ticketTypeAction.Value;
-
-            return new CreatedAtRouteResult(new { Id = ticketUser.Id },
-                ItemToDTO(ticketUser, ticketStore.TotalPunches, store.Name, ticketType.Id));
+            return new CreatedAtRouteResult(new { Id = ticketUser.Id }, ticketJoin[0]);
         }
         public async Task<ActionResult<TicketUserDTO>> CreatePunch(long ticketStoreId, int tempCode)
         {
@@ -253,15 +205,8 @@ namespace BLL.Versions.V1.BusinessLogic
             }
             Store store = storeAction.Value;
 
-            // Get ticket type
-            ActionResult<TicketType> ticketTypeAction = await ticketTypeDA.GetTicketType(ticketStore.TicketTypeId);
-            if (ticketTypeAction == null || ticketTypeAction.Value == null)
-            {
-                return new NotFoundResult();
-            }
-            TicketType ticketType = ticketTypeAction.Value;
-
-            return new OkObjectResult(ItemToDTO(ticketUser, ticketStore.TotalPunches, store.Name, ticketType.Id));
+            return new OkObjectResult(
+                ItemToDTO(ticketUser, ticketStore.TotalPunches, store.Name, ticketStore.TicketTypeId));
         }
         public async Task<ActionResult<TicketUserDTO>> GenerateTempCode(IIdentity userIdentity, long ticketStoreId)
         {
@@ -338,15 +283,8 @@ namespace BLL.Versions.V1.BusinessLogic
             }
             Store store = storeAction.Value;
 
-            // Get ticket type
-            ActionResult<TicketType> ticketTypeAction = await ticketTypeDA.GetTicketType(ticketStore.TicketTypeId);
-            if (ticketTypeAction == null || ticketTypeAction.Value == null)
-            {
-                return new NotFoundResult();
-            }
-            TicketType ticketType = ticketTypeAction.Value;
-
-            return new OkObjectResult(ItemToDTO(ticketUser, ticketStore.TotalPunches, store.Name, ticketType.Id));
+            return new OkObjectResult(
+                ItemToDTO(ticketUser, ticketStore.TotalPunches, store.Name, ticketStore.TicketTypeId));
         }
 
         /*private static TicketUserDTO ItemToDTO(TicketUser ticketUser) =>

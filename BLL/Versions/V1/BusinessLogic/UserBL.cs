@@ -178,8 +178,16 @@ namespace BLL.Versions.V1.BusinessLogic
             new UserDTO
             {
                 FirstName = user.FirstName,
+                LastName = user.LastName,
                 Phone = user.Phone,
+                Area = user.Area,
+                City = user.City,
+                Street = user.Street,
                 Email = user.Email,
+                UserName = user.UserName,
+                LastVisited = user.LastVisited,
+                UserTypeId = user.UserTypeId,
+                PhotoPath = user.PhotoPath
             };
         private static TokenDTO TokenToTokenDTO(User user, string token) =>
             new TokenDTO

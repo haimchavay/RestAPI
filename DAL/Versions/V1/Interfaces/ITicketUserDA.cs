@@ -8,9 +8,11 @@ namespace DAL.Versions.V1.Interfaces
     public interface ITicketUserDA
     {
         Task<List<TicketUser>> GetTicketsUsers();
-        Task<List<TicketUser>> GetTicketsUser(long userId);
-        Task<ActionResult<TicketUser>> GetTicketUser(long id);
+        Task<List<TicketUserJoinTicketStoreJoinStore>> GetTicketsUserWithJoin(long userId);
+        //Task<List<TicketUser>> GetTicketsUser(long userId);
+        //Task<ActionResult<TicketUser>> GetTicketUser(long id);
         Task<ActionResult<TicketUser>> GetTicketUser(long userId, long ticketStoreId);
+        Task<List<TicketUserJoinTicketStoreJoinStore>> GetTicketUserWithJoin(long userId, long ticketStoreId);
         Task<ActionResult<TicketUser>> GetTicketUser(int tempCode, long ticketStoreId);
         Task<int> CreateTicketUser(TicketUser ticketUser);
         Task<int> PutTicketUser(TicketUser ticketUser);
