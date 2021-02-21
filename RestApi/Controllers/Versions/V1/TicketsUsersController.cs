@@ -26,6 +26,11 @@ namespace RestApi.Controllers.Versions.V1
         {
             return await ticketUserBL.getTicketsUser(HttpContext.User.Identity);
         }
+        [HttpGet("store/{storeId}")]
+        public async Task<IActionResult> GetTicketsUsers(long storeId)
+        {
+            return await ticketUserBL.getTicketsUsersBelongToStore(storeId);
+        }
 
         [HttpPost]
         public async Task<ActionResult<TicketUserDTO>> CreateTicketUser(TicketUser ticketUser)
@@ -33,7 +38,6 @@ namespace RestApi.Controllers.Versions.V1
             return await ticketUserBL.CreateTicketUser(HttpContext.User.Identity, ticketUser);
         }
 
-        // Needs to pass ticketStoreId and tempCode
         [HttpGet("punch/")]
         public async Task<ActionResult<TicketUserDTO>> CreatePunch([FromQuery] TicketUserDTO ticketUserDTO)
         {

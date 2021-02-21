@@ -79,6 +79,20 @@ namespace BLL.Versions.V1.BusinessLogic
 
             return new OkObjectResult(ticketJoin);
         }
+
+        public async Task<IActionResult> getTicketsUsersBelongToStore(long storeId)
+        {
+            ActionResult<List<TicketUserJoinTicketStoreJoinStore>> actionJoin =
+                await ticketUserDA.getTicketsUsersBelongToStore(storeId);
+            if (actionJoin == null || actionJoin.Value == null)
+            {
+                return new NotFoundResult();
+            }
+            List<TicketUserJoinTicketStoreJoinStore> ticketJoin = actionJoin.Value;
+
+            return new OkObjectResult(ticketJoin);
+        }
+
         /*public async Task<IActionResult> GetTicketUser(long id)
         {
             ActionResult<TicketUser> action = await ticketUserDA.GetTicketUser(id);

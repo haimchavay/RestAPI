@@ -85,6 +85,35 @@ namespace DAL.Versions.V1.DataAccess
 
             return await data;
         }
+        public async Task<List<TicketUserJoinTicketStoreJoinStore>> getTicketsUsersBelongToStore(long storeId)
+        {
+            using var context = new DevTicketDatabaseContext(DevTicketDatabaseContext.ops.dbOptions);
+
+            var data = (from tu in context.TicketsUsers
+                        join ts in context.TicketsStores
+                        on tu.TicketStoreId equals ts.Id
+                        join s in context.Stores
+                        on ts.StoreId equals s.Id
+                        where s.Id == storeId
+                        select new TicketUserJoinTicketStoreJoinStore
+                        {
+                            Id = tu.Id,
+                            UserId = tu.UserId,
+                            TicketStoreId = tu.TicketStoreId,
+                            Punch = tu.Punch,
+                            Status = tu.Status,
+                            CreatedDate = tu.CreatedDate,
+                            LastPunching = tu.LastPunching,
+                            TempCode = tu.TempCode,
+                            CreatedTempCode = tu.CreatedTempCode,
+                            TotalPunches = ts.TotalPunches,
+                            StoreName = s.Name,
+                            TicketTypeId = ts.TicketTypeId
+                        }).ToListAsync();
+
+            return await data;
+        }
+
         public async Task<ActionResult<TicketUser>> GetTicketUser(long userId, long ticketStoreId)
         {
             using var context = new DevTicketDatabaseContext(DevTicketDatabaseContext.ops.dbOptions);

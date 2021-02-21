@@ -13,6 +13,7 @@ namespace DAL.Versions.V1.Interfaces
         //Task<ActionResult<TicketUser>> GetTicketUser(long id);
         Task<ActionResult<TicketUser>> GetTicketUser(long userId, long ticketStoreId);
         Task<List<TicketUserJoinTicketStoreJoinStore>> GetTicketUserWithJoin(long userId, long ticketStoreId);
+        Task<List<TicketUserJoinTicketStoreJoinStore>> getTicketsUsersBelongToStore(long storeId);
         Task<ActionResult<TicketUser>> GetTicketUser(int tempCode, long ticketStoreId);
         Task<int> CreateTicketUser(TicketUser ticketUser);
         Task<int> PutTicketUser(TicketUser ticketUser);
