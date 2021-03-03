@@ -3,13 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30711.63
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RestApi", "RestApi\RestApi.csproj", "{2082CDF7-C5E7-4891-8EBA-4AA34B444AB9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RestApi", "RestApi\RestApi.csproj", "{2082CDF7-C5E7-4891-8EBA-4AA34B444AB9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DAL", "DAL\DAL.csproj", "{A0D5684B-5EA2-4850-9AF7-5DAB4179873F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DAL", "DAL\DAL.csproj", "{A0D5684B-5EA2-4850-9AF7-5DAB4179873F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BLL", "BLL\BLL.csproj", "{8AC60AAD-A48D-4510-9DB3-F7C35DB6C1D8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BLL", "BLL\BLL.csproj", "{8AC60AAD-A48D-4510-9DB3-F7C35DB6C1D8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pagination", "Pagination\Pagination.csproj", "{E1D54280-0FDF-4CC1-8E22-C6E0A2A22E52}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pagination", "Pagination\Pagination.csproj", "{E1D54280-0FDF-4CC1-8E22-C6E0A2A22E52}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignalRChat", "SignalRChat\SignalRChat.csproj", "{90DC1531-5CAE-4701-A5F9-8E91E4E51E22}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{E1D54280-0FDF-4CC1-8E22-C6E0A2A22E52}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E1D54280-0FDF-4CC1-8E22-C6E0A2A22E52}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E1D54280-0FDF-4CC1-8E22-C6E0A2A22E52}.Release|Any CPU.Build.0 = Release|Any CPU
+		{90DC1531-5CAE-4701-A5F9-8E91E4E51E22}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90DC1531-5CAE-4701-A5F9-8E91E4E51E22}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90DC1531-5CAE-4701-A5F9-8E91E4E51E22}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90DC1531-5CAE-4701-A5F9-8E91E4E51E22}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
