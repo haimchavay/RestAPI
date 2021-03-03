@@ -16,5 +16,7 @@ namespace DAL.Versions.V1.Interfaces
         Task<int> GetRecords();
         bool Exists(long id);
         bool IsExists(string phone, string email);
+        bool IsPhoneExists(string phone);
+        bool IsEmailExists(string email);
     }
 }

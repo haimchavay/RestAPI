@@ -110,11 +110,22 @@ namespace BLL.Versions.V1.BusinessLogic
         }
         public async Task<ActionResult<UserDTO>> CreateUser(User user)
         {
-            // User exist in database
+            // Email exist in database
+            if (userDA.IsEmailExists(user.Email))
+            {
+                return new ConflictObjectResult("The email already exists");
+            }
+            // Phone exist in database
+            if (userDA.IsPhoneExists(user.Phone))
+            {
+                return new ConflictObjectResult("The phone already exists");
+            }
+
+            /*// User exist in database
             if (IsUserExist(user))
             {
                 return new ConflictObjectResult("The user already exists");
-            }
+            }*/
 
             await userDA.CreateUser(user);
 

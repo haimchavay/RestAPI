@@ -78,5 +78,17 @@ namespace DAL.Versions.V1.DataAccess
 
             return context.Users.Any(e => e.Email == email || e.Phone == phone);
         }
+        public bool IsPhoneExists(string phone)
+        {
+            using var context = new DevTicketDatabaseContext(DevTicketDatabaseContext.ops.dbOptions);
+
+            return context.Users.Any(e => e.Phone == phone);
+        }
+        public bool IsEmailExists(string email)
+        {
+            using var context = new DevTicketDatabaseContext(DevTicketDatabaseContext.ops.dbOptions);
+
+            return context.Users.Any(e => e.Email == email);
+        }
     }
 }
