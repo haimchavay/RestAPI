@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using RestApi.Hubs;
 using System.Text;
 
 namespace RestApi
@@ -21,14 +22,21 @@ namespace RestApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSignalR();
             services.AddControllers();
             // Cross domain
             services.AddCors(options =>
             {
-                options.AddPolicy("CorsApi",
+                /*options.AddPolicy("CorsApi",
                     builder => builder.WithOrigins("http://localhost:8100", "http://mywebsite.com")
                 .AllowAnyHeader()
-                .AllowAnyMethod());
+                .AllowAnyMethod());*/
+
+                options.AddPolicy("CorsApi",
+                    builder => builder.WithOrigins("http://localhost:8100", "http://localhost:8101")
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials());
             });
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
@@ -68,6 +76,7 @@ namespace RestApi
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHub<ChatHub>("/chathub");
             });
         }
     }
