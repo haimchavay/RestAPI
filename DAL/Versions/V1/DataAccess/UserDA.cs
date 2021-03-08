@@ -21,11 +21,17 @@ namespace DAL.Versions.V1.DataAccess
                 .ToListAsync();
         }
 
-        public async Task<User> GetUser(string email, string password)
+        /*public async Task<User> GetUser(string email, string password)
         {
             using var context = new DevTicketDatabaseContext(DevTicketDatabaseContext.ops.dbOptions);
 
             return await context.Users.FirstOrDefaultAsync(u => u.Email == email && u.Password == password);
+        }*/
+        public async Task<User> GetUser(string email)
+        {
+            using var context = new DevTicketDatabaseContext(DevTicketDatabaseContext.ops.dbOptions);
+
+            return await context.Users.FirstOrDefaultAsync(u => u.Email == email);
         }
 
         public async Task<ActionResult<User>> GetUser(long id)
@@ -35,6 +41,7 @@ namespace DAL.Versions.V1.DataAccess
             return await context.Users.FindAsync(id);
         }
 
+        /*
         public async Task<int> PutUser(User user)
         {
             using var context = new DevTicketDatabaseContext(DevTicketDatabaseContext.ops.dbOptions);
@@ -42,6 +49,7 @@ namespace DAL.Versions.V1.DataAccess
             context.Entry(user).State = EntityState.Modified;
             return await context.SaveChangesAsync();
         }
+        */
 
         public async Task<int> CreateUser(User user)
         {

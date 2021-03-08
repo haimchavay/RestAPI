@@ -1,4 +1,5 @@
 ﻿using BLL.Versions.V1.DataTransferObjects;
+using BLL.Versions.V1.Helpers;
 using BLL.Versions.V1.Interfaces;
 using DAL.Versions.V1.DataAccess;
 using DAL.Versions.V1.Entities;
@@ -68,6 +69,7 @@ namespace BLL.Versions.V1.BusinessLogic
 
             return new OkObjectResult(userDTO);
         }
+        /*
         public async Task<IActionResult> PutUser(long id, User user)
         {
             if (id != user.Id)
@@ -108,6 +110,7 @@ namespace BLL.Versions.V1.BusinessLogic
 
             return new NoContentResult();
         }
+        */
         public async Task<ActionResult<UserDTO>> CreateUser(User user)
         {
             // Email exist in database
@@ -126,6 +129,9 @@ namespace BLL.Versions.V1.BusinessLogic
             {
                 return new ConflictObjectResult("The user already exists");
             }*/
+
+            // Hashing password with BCrypt
+            user.Password = Hashing.HashPassword(user.Password);
 
             await userDA.CreateUser(user);
 
@@ -152,8 +158,19 @@ namespace BLL.Versions.V1.BusinessLogic
             }
 
             // Verifies credentials
-            var user = await userDA.GetUser(userData.Email, userData.Password);
+            /*var user = await userDA.GetUser(userData.Email, userData.Password);
             if ( !(user != null) )
+            {
+                return new BadRequestObjectResult("Invalid credentials");
+            }*/
+
+            var user = await userDA.GetUser(userData.Email);
+            if (!(user != null))
+            {
+                return new BadRequestObjectResult("Invalid credentials");
+            }
+            // Validate userPassword with hashPassword with BCrypt
+            if( !Hashing.ValidatePassword(userData.Password, user.Password) )
             {
                 return new BadRequestObjectResult("Invalid credentials");
             }
