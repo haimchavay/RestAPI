@@ -72,5 +72,6 @@ namespace DAL.Versions.V1.DataContext
         public DbSet<TicketUser> TicketsUsers { get; set; }
         public DbSet<TicketStore> TicketsStores { get; set; }
         public DbSet<TicketType> TicketTypes { get; set; }
+        public DbSet<PunchHistory> PunchingHistory { get; set; }
     }
 }

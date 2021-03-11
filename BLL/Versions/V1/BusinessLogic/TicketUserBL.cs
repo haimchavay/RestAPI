@@ -24,6 +24,7 @@ namespace BLL.Versions.V1.BusinessLogic
         private readonly IStoreDA storeDA = new StoreDA();
         private readonly ITicketTypeDA ticketTypeDA = new TicketTypeDA();
         private readonly IUserDA userDA = new UserDA();
+        private readonly IPunchHistoryDA punchHistoryDA = new PunchHistoryDA();
 
         public async Task<IActionResult> getTicketsUsers()
         {
@@ -224,17 +225,18 @@ namespace BLL.Versions.V1.BusinessLogic
             Store store = storeAction.Value;
 
             // Caller chat notification
-            ActionResult<User> action = await userDA.GetUser(ticketUser.UserId);
-            if (action == null || action.Value == null)
-            {
-                return new NotFoundResult();
-            }
-            User user = action.Value;
-
-            /*string userId = ticketUser.UserId.ToString();
-            string firstName = user.FirstName;
-            string msg = "punch success";*/
             await hub.Clients.All.SendAsync(ticketUser.UserId.ToString(), "success", ticketUser);
+       
+            // Create punch history
+            PunchHistory punchHistory = new PunchHistory
+            {
+                Id = Guid.NewGuid().ToString(),
+                UserId = ticketUser.UserId,
+                TicketStoreId = ticketUser.TicketStoreId,
+                Punch = ticketUser.Punch,
+                CreatedDate = (DateTime)ticketUser.LastPunching
+            };
+            await punchHistoryDA.CreatePunchHistory(punchHistory);
 
             return new OkObjectResult(
                 ItemToDTO(ticketUser, ticketStore.TotalPunches, store.Name, ticketStore.TicketTypeId));
