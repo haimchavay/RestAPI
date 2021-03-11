@@ -1,9 +1,11 @@
 ﻿using BLL.Versions.V1.DataTransferObjects;
+using BLL.Versions.V1.Hubs;
 using BLL.Versions.V1.Interfaces;
 using DAL.Versions.V1.DataAccess;
 using DAL.Versions.V1.Entities;
 using DAL.Versions.V1.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -21,6 +23,7 @@ namespace BLL.Versions.V1.BusinessLogic
         private readonly ITicketStoreDA ticketStoreDA = new TicketStoreDA();
         private readonly IStoreDA storeDA = new StoreDA();
         private readonly ITicketTypeDA ticketTypeDA = new TicketTypeDA();
+        private readonly IUserDA userDA = new UserDA();
 
         public async Task<IActionResult> getTicketsUsers()
         {
@@ -158,7 +161,8 @@ namespace BLL.Versions.V1.BusinessLogic
 
             return new CreatedAtRouteResult(new { Id = ticketUser.Id }, ticketJoin[0]);
         }
-        public async Task<ActionResult<TicketUserDTO>> CreatePunch(long ticketStoreId, int tempCode)
+        public async Task<ActionResult<TicketUserDTO>> CreatePunch(long ticketStoreId, int tempCode,
+            IHubContext<ChatHub> hub)
         {
             #region// Get ticket user with temp code
             ActionResult<TicketUser> actionTicketUser = await ticketUserDA.GetTicketUser(tempCode, ticketStoreId);
@@ -218,6 +222,19 @@ namespace BLL.Versions.V1.BusinessLogic
                 return new NotFoundResult();
             }
             Store store = storeAction.Value;
+
+            // Caller chat notification
+            ActionResult<User> action = await userDA.GetUser(ticketUser.UserId);
+            if (action == null || action.Value == null)
+            {
+                return new NotFoundResult();
+            }
+            User user = action.Value;
+
+            /*string userId = ticketUser.UserId.ToString();
+            string firstName = user.FirstName;
+            string msg = "punch success";*/
+            await hub.Clients.All.SendAsync(ticketUser.UserId.ToString(), "success", ticketUser);
 
             return new OkObjectResult(
                 ItemToDTO(ticketUser, ticketStore.TotalPunches, store.Name, ticketStore.TicketTypeId));

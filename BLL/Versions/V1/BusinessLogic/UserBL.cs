@@ -124,12 +124,6 @@ namespace BLL.Versions.V1.BusinessLogic
                 return new ConflictObjectResult("The phone already exists");
             }
 
-            /*// User exist in database
-            if (IsUserExist(user))
-            {
-                return new ConflictObjectResult("The user already exists");
-            }*/
-
             // Hashing password with BCrypt
             user.Password = Hashing.HashPassword(user.Password);
 
@@ -205,6 +199,7 @@ namespace BLL.Versions.V1.BusinessLogic
         private static UserDTO ItemToDTO(User user) =>
             new UserDTO
             {
+                Id = user.Id,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Phone = user.Phone,
@@ -221,13 +216,18 @@ namespace BLL.Versions.V1.BusinessLogic
             new TokenDTO
             {
                 Token = token,
+                Id = user.Id,
                 FirstName = user.FirstName,
+                LastName = user.LastName,
                 Phone = user.Phone,
-                Email = user.Email
+                Area = user.Area,
+                City = user.City,
+                Street = user.Street,
+                Email = user.Email,
+                UserName = user.UserName,
+                LastVisited = user.LastVisited,
+                UserTypeId = user.UserTypeId,
+                PhotoPath = user.PhotoPath
             };
-        private bool IsUserExist(User user)
-        {
-            return userDA.IsExists(user.Phone, user.Email);
-        }
     }
 }

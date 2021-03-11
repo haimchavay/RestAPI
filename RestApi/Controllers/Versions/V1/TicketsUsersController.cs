@@ -1,9 +1,11 @@
 ﻿using BLL.Versions.V1.BusinessLogic;
 using BLL.Versions.V1.DataTransferObjects;
+using BLL.Versions.V1.Hubs;
 using BLL.Versions.V1.Interfaces;
 using DAL.Versions.V1.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using System.Threading.Tasks;
 
 namespace RestApi.Controllers.Versions.V1
@@ -14,6 +16,12 @@ namespace RestApi.Controllers.Versions.V1
     public class TicketsUsersController : ControllerBase
     {
         private readonly ITicketUserBL ticketUserBL = new TicketUserBL();
+        private readonly IHubContext<ChatHub> hub;
+
+        public TicketsUsersController(IHubContext<ChatHub> hub)
+        {
+            this.hub = hub;
+        }
 
         /*[HttpGet]
         public async Task<IActionResult> GetTicketsUsers()
@@ -41,7 +49,7 @@ namespace RestApi.Controllers.Versions.V1
         [HttpGet("punch/")]
         public async Task<ActionResult<TicketUserDTO>> CreatePunch([FromQuery] TicketUserDTO ticketUserDTO)
         {
-            return await ticketUserBL.CreatePunch(ticketUserDTO.TicketStoreId, (int)ticketUserDTO.TempCode);
+            return await ticketUserBL.CreatePunch(ticketUserDTO.TicketStoreId, (int)ticketUserDTO.TempCode, hub);
         }
 
         [HttpGet("generate/")]

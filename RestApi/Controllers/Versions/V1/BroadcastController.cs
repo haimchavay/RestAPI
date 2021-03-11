@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
+using BLL.Versions.V1.Hubs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using RestApi.Hubs;
 
 namespace RestApi.Controllers.Versions.V1
 {
