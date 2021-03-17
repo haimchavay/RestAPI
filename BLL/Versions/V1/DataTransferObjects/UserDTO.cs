@@ -16,5 +16,7 @@ namespace BLL.Versions.V1.DataTransferObjects
         public DateTime? LastVisited { get; set; }
         public int? UserTypeId { get; set; }
         public string PhotoPath { get; set; }
+        public int? TempCode { get; set; }
+        public DateTime? CreatedTempCode { get; set; }
     }
 }

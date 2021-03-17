@@ -58,6 +58,13 @@ namespace DAL.Versions.V1.DataAccess
             context.Users.Add(user);
             return await context.SaveChangesAsync();
         }
+        public async Task<int> PutUser(User user)
+        {
+            using var context = new DevTicketDatabaseContext(DevTicketDatabaseContext.ops.dbOptions);
+
+            context.Entry(user).State = EntityState.Modified;
+            return await context.SaveChangesAsync();
+        }
 
         public async Task<int> DeleteUser(User user)
         {

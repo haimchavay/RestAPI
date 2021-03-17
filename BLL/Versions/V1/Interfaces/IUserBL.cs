@@ -3,6 +3,7 @@ using DAL.Versions.V1.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Pagination.Filter;
+using System.Security.Principal;
 using System.Threading.Tasks;
 
 namespace BLL.Versions.V1.Interfaces
@@ -10,6 +11,7 @@ namespace BLL.Versions.V1.Interfaces
     public interface IUserBL
     {
         Task<IActionResult> GetToken(User userData);
+        Task<ActionResult<TicketUserDTO>> GenerateTempCode(IIdentity userIdentity);
         Task<IActionResult> GetPage(PaginationFilter filter, HttpRequest request);
         Task<IActionResult> GetUser(long id);
         //Task<IActionResult> PutUser(long id, User user);

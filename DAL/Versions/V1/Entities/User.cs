@@ -20,5 +20,7 @@ namespace DAL.Versions.V1.Entities
         public long? FacebookSocialId { get; set; }
         public long? GmailSocialId { get; set; }
         public string PhotoPath { get; set; }
+        public int? TempCode { get; set; }
+        public DateTime? CreatedTempCode { get; set; }
     }
 }

@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -58,12 +59,10 @@ namespace BLL.Versions.V1.BusinessLogic
         public async Task<IActionResult> GetUser(long id)
         {
             ActionResult<User> action = await userDA.GetUser(id);
-
             if (action == null || action.Value == null)
             {
                 return new NotFoundResult();
             }
-
             User user = action.Value;
             UserDTO userDTO = ItemToDTO(user);
 
@@ -196,6 +195,47 @@ namespace BLL.Versions.V1.BusinessLogic
             return new OkObjectResult(TokenToTokenDTO(user, tokenStr));
         }
 
+        public async Task<ActionResult<TicketUserDTO>> GenerateTempCode(IIdentity userIdentity)
+        {
+            int tempCode = 0;
+            #region// Get user id
+            string userIdStr = Identity.GetValueFromClaim(userIdentity, "Id");
+            long userId = Convert.ToInt64(userIdStr);
+            #endregion
+
+            ActionResult<User> action = await userDA.GetUser(userId);
+            if (action == null || action.Value == null)
+            {
+                //return new NotFoundResult();
+                return new NotFoundObjectResult("user id : " + userId + " not found");
+            }
+            User user = action.Value;
+            if ( (user.CreatedTempCode != null) && (user.CreatedTempCode.Value.AddMinutes(1) >= DateTime.Now) )
+            {
+                return new NotFoundObjectResult("please wait one minute and try again");
+            }
+
+            // Generate temp code(1 - 99999) and insert to ticket user(database)
+            tempCode = new Random().Next(10001, 100000);
+            // Insert temp code to user
+            user.TempCode = tempCode;
+            user.CreatedTempCode = DateTime.Now;
+
+            #region// Insert to database
+            try
+            {
+                await userDA.PutUser(user);
+            }
+            catch (DbUpdateConcurrencyException) when (!userDA.Exists(user.Id))
+            {
+                return new NotFoundResult();
+            }
+            #endregion
+
+            return new OkObjectResult(
+                ItemToDTO(user));
+        }
+
         private static UserDTO ItemToDTO(User user) =>
             new UserDTO
             {
@@ -210,7 +250,9 @@ namespace BLL.Versions.V1.BusinessLogic
                 UserName = user.UserName,
                 LastVisited = user.LastVisited,
                 UserTypeId = user.UserTypeId,
-                PhotoPath = user.PhotoPath
+                PhotoPath = user.PhotoPath,
+                TempCode = user.TempCode,
+                CreatedTempCode = user.CreatedTempCode
             };
         private static TokenDTO TokenToTokenDTO(User user, string token) =>
             new TokenDTO
@@ -227,7 +269,9 @@ namespace BLL.Versions.V1.BusinessLogic
                 UserName = user.UserName,
                 LastVisited = user.LastVisited,
                 UserTypeId = user.UserTypeId,
-                PhotoPath = user.PhotoPath
+                PhotoPath = user.PhotoPath,
+                TempCode = user.TempCode,
+                CreatedTempCode = user.CreatedTempCode
             };
     }
 }

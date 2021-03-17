@@ -46,6 +46,13 @@ namespace RestApi.Controllers.Versions.V1
             return await userBL.CreateUser(user);
         }
 
+        [HttpGet("generate/")]
+        public async Task<ActionResult<TicketUserDTO>> GenerateTempCode()
+        {
+            //return await ticketUserBL.GenerateTempCode(HttpContext.User.Identity, ticketStoreId);
+            return await userBL.GenerateTempCode(HttpContext.User.Identity);
+        }
+
         /*[HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(long id)
         {

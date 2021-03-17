@@ -1,4 +1,5 @@
 ﻿using BLL.Versions.V1.DataTransferObjects;
+using BLL.Versions.V1.Helpers;
 using BLL.Versions.V1.Hubs;
 using BLL.Versions.V1.Interfaces;
 using DAL.Versions.V1.DataAccess;
@@ -70,7 +71,8 @@ namespace BLL.Versions.V1.BusinessLogic
         }
         public async Task<IActionResult> getTicketsUser(IIdentity userIdentity)
         {
-            string userIdStr = GetValueFromClaim(userIdentity, "Id");
+            //string userIdStr = GetValueFromClaim(userIdentity, "Id");
+            string userIdStr = Identity.GetValueFromClaim(userIdentity, "Id");
             long userId = Convert.ToInt64(userIdStr);
 
             ActionResult<List<TicketUserJoinTicketStoreJoinStore>> actionJoin =
@@ -136,9 +138,15 @@ namespace BLL.Versions.V1.BusinessLogic
 
             return new OkObjectResult(ticketUserDTO);
         }*/
-        public async Task<ActionResult<TicketUserDTO>> CreateTicketUser(IIdentity userIdentity, TicketUser ticketUser)
+        public async Task<ActionResult<TicketUserDTO>> CreateTicketUser(IIdentity userIdentity, TicketUser ticketUser,
+            int userTempCode, IHubContext<ChatHub> hub)
         {
-            string userIdStr = GetValueFromClaim(userIdentity, "Id");
+            const int CASH_TICKET = 2;
+            const int EMPTY_CODE = 0;
+
+
+            //string userIdStr = GetValueFromClaim(userIdentity, "Id");
+            string userIdStr = Identity.GetValueFromClaim(userIdentity, "Id");
             long userId = Convert.ToInt64(userIdStr);
             ticketUser.UserId = userId;
 
@@ -150,7 +158,56 @@ namespace BLL.Versions.V1.BusinessLogic
             }
             #endregion
 
+            // Check if Cash ticket
+            ActionResult<TicketStore> action = await ticketStoreDA.GetTicketStore(ticketUser.TicketStoreId);
+            if (action == null || action.Value == null)
+            {
+                return new NotFoundResult();
+            }
+            TicketStore ticketStore = action.Value;
+
+            if(ticketStore.TicketTypeId == CASH_TICKET)
+            {
+                if(userTempCode == EMPTY_CODE)
+                {
+                    return new ConflictObjectResult("Please generate code and pass him");
+                }
+                ActionResult<User> actionUser = await userDA.GetUser(userId);
+                if (actionUser == null || actionUser.Value == null)
+                {
+                    //return new NotFoundResult();
+                    return new NotFoundObjectResult("user id : " + userId + " not found");
+                }
+                User user = actionUser.Value;
+                if(user.TempCode != userTempCode)
+                {
+                    return new ConflictObjectResult("Wrong temp code");
+                }
+                if(user.CreatedTempCode.Value.AddMinutes(5) < DateTime.Now)
+                {
+                    return new NotFoundObjectResult("More than five minutes have passed, please try again");
+                }
+
+                // Remove tempCode and createdTempCode from database
+                user.TempCode = null;
+                user.CreatedTempCode = null;
+
+                #region// Insert to database
+                try
+                {
+                    await userDA.PutUser(user);
+                }
+                catch (DbUpdateConcurrencyException) when (!userDA.Exists(user.Id))
+                {
+                    return new NotFoundResult();
+                }
+                #endregion
+            }
+
             await ticketUserDA.CreateTicketUser(ticketUser);
+
+            // Caller chat notification
+            await hub.Clients.All.SendAsync(ticketUser.UserId.ToString(), "Ticket user created successfully", ticketUser);
 
             ActionResult<List<TicketUserJoinTicketStoreJoinStore>> actionJoin =
                 await ticketUserDA.GetTicketUserWithJoin(userId, ticketUser.TicketStoreId);
@@ -245,7 +302,8 @@ namespace BLL.Versions.V1.BusinessLogic
         {
             int tempCode = 0;
             #region// Get user id
-            string userIdStr = GetValueFromClaim(userIdentity, "Id");
+            //string userIdStr = GetValueFromClaim(userIdentity, "Id");
+            string userIdStr = Identity.GetValueFromClaim(userIdentity, "Id");
             long userId = Convert.ToInt64(userIdStr);
             #endregion
 
@@ -267,6 +325,7 @@ namespace BLL.Versions.V1.BusinessLogic
             TicketStore ticketStore = actionStore.Value;
             #endregion
 
+            // ToDo - Remove -> need's to validate only when create punch
             if (ticketUser.Punch >= ticketStore.TotalPunches || ticketUser.Status == TICKET_UNACTIVE)
             {
                 return new BadRequestObjectResult("Ticket id '" + ticketUser.Id + "' is finish");
@@ -351,7 +410,7 @@ namespace BLL.Versions.V1.BusinessLogic
                 StoreName = storeName,
                 TicketTypeId = ticketTypeId
             };
-        private static string GetValueFromClaim(IIdentity userIdentity, string key)
+        /*private static string GetValueFromClaim(IIdentity userIdentity, string key)
         {
             string value = null;
             if (userIdentity is ClaimsIdentity identity)
@@ -361,6 +420,6 @@ namespace BLL.Versions.V1.BusinessLogic
             }
 
             return value;
-        }
+        }*/
     }
 }
