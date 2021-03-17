@@ -114,12 +114,13 @@ namespace DAL.Versions.V1.DataAccess
             return await data;
         }
 
-        public async Task<ActionResult<TicketUser>> GetTicketUser(long userId, long ticketStoreId)
+        public async Task<ActionResult<TicketUser>> GetTicketUser(long userId, long ticketStoreId, bool status)
         {
             using var context = new DevTicketDatabaseContext(DevTicketDatabaseContext.ops.dbOptions);
 
             return await context.TicketsUsers.FirstOrDefaultAsync(tu => tu.UserId == userId &&
-                                                                        tu.TicketStoreId == ticketStoreId);
+                                                                        tu.TicketStoreId == ticketStoreId &&
+                                                                        tu.Status == status);
         }
 
         public async Task<ActionResult<TicketUser>> GetTicketUser(int tempCode, long ticketStoreId)

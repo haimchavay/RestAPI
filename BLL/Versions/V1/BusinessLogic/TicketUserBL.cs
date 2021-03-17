@@ -19,6 +19,9 @@ namespace BLL.Versions.V1.BusinessLogic
     public class TicketUserBL : ITicketUserBL
     {
         private const bool TICKET_UNACTIVE = false;
+        private const bool TICKET_ACTIVE = true;
+        private const int CASH_TICKET = 2;
+        private const int EMPTY_CODE = 0;
 
         private readonly ITicketUserDA ticketUserDA = new TicketUserDA();
         private readonly ITicketStoreDA ticketStoreDA = new TicketStoreDA();
@@ -141,20 +144,17 @@ namespace BLL.Versions.V1.BusinessLogic
         public async Task<ActionResult<TicketUserDTO>> CreateTicketUser(IIdentity userIdentity, TicketUser ticketUser,
             int userTempCode, IHubContext<ChatHub> hub)
         {
-            const int CASH_TICKET = 2;
-            const int EMPTY_CODE = 0;
-
-
-            //string userIdStr = GetValueFromClaim(userIdentity, "Id");
             string userIdStr = Identity.GetValueFromClaim(userIdentity, "Id");
             long userId = Convert.ToInt64(userIdStr);
             ticketUser.UserId = userId;
 
             #region// Get ticket user
-            ActionResult<TicketUser> actionTicketUser = await ticketUserDA.GetTicketUser(userId, ticketUser.TicketStoreId);
+            //TicketUser existTicketUser = null;
+            ActionResult<TicketUser> actionTicketUser = await ticketUserDA.GetTicketUser(userId,
+                ticketUser.TicketStoreId, TICKET_ACTIVE);
             if (actionTicketUser != null && actionTicketUser.Value != null)
             {
-                return new ConflictObjectResult("The ticket already exists");
+                return new ConflictObjectResult("The ticket already exists and active");
             }
             #endregion
 
@@ -302,16 +302,17 @@ namespace BLL.Versions.V1.BusinessLogic
         {
             int tempCode = 0;
             #region// Get user id
-            //string userIdStr = GetValueFromClaim(userIdentity, "Id");
             string userIdStr = Identity.GetValueFromClaim(userIdentity, "Id");
             long userId = Convert.ToInt64(userIdStr);
             #endregion
 
             #region// Get ticket user
-            ActionResult<TicketUser> actionTicketUser = await ticketUserDA.GetTicketUser(userId, ticketStoreId);
+            ActionResult<TicketUser> actionTicketUser = await ticketUserDA.GetTicketUser(userId,
+                ticketStoreId, TICKET_ACTIVE);
             if (actionTicketUser == null || actionTicketUser.Value == null)
             {
-                return new NotFoundResult();
+                return new NotFoundObjectResult("The ticket not exist or unactive");
+                //return new NotFoundResult();
             }
             TicketUser ticketUser = actionTicketUser.Value;
             #endregion
@@ -324,12 +325,6 @@ namespace BLL.Versions.V1.BusinessLogic
             }
             TicketStore ticketStore = actionStore.Value;
             #endregion
-
-            // ToDo - Remove -> need's to validate only when create punch
-            if (ticketUser.Punch >= ticketStore.TotalPunches || ticketUser.Status == TICKET_UNACTIVE)
-            {
-                return new BadRequestObjectResult("Ticket id '" + ticketUser.Id + "' is finish");
-            }
 
             // Generate temp code(1 - 99999) and insert to ticket user(database)
             tempCode = new Random().Next(10001, 100000);
