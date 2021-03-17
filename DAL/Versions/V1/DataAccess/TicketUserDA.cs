@@ -42,7 +42,8 @@ namespace DAL.Versions.V1.DataAccess
                             CreatedTempCode = tu.CreatedTempCode,
                             TotalPunches = ts.TotalPunches,
                             StoreName = s.Name,
-                            TicketTypeId = ts.TicketTypeId
+                            TicketTypeId = ts.TicketTypeId,
+                            PunchValue = ts.PunchValue
                         }).ToListAsync();
 
             return await data;
@@ -80,7 +81,8 @@ namespace DAL.Versions.V1.DataAccess
                             CreatedTempCode = tu.CreatedTempCode,
                             TotalPunches = ts.TotalPunches,
                             StoreName = s.Name,
-                            TicketTypeId = ts.TicketTypeId
+                            TicketTypeId = ts.TicketTypeId,
+                            PunchValue = ts.PunchValue
                         }).ToListAsync();
 
             return await data;
@@ -108,7 +110,8 @@ namespace DAL.Versions.V1.DataAccess
                             CreatedTempCode = tu.CreatedTempCode,
                             TotalPunches = ts.TotalPunches,
                             StoreName = s.Name,
-                            TicketTypeId = ts.TicketTypeId
+                            TicketTypeId = ts.TicketTypeId,
+                            PunchValue = ts.PunchValue
                         }).ToListAsync();
 
             return await data;

@@ -20,5 +20,6 @@ namespace DAL.Versions.V1.Entities
         public int TotalPunches { get; set; }
         public string StoreName { get; set; }
         public int TicketTypeId { get; set; }
+        public long PunchValue { get; set; }
     }
 }

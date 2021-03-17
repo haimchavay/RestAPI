@@ -67,7 +67,8 @@ namespace BLL.Versions.V1.BusinessLogic
                 }
                 TicketType ticketType = ticketTypeAction.Value;
 
-                ticketsUserDTOList.Add(ItemToDTO(ticket, ticketStore.TotalPunches, store.Name, ticketType.Id));
+                ticketsUserDTOList.Add(ItemToDTO(ticket,
+                    ticketStore.TotalPunches, store.Name, ticketType.Id, ticketStore.PunchValue));
             }
 
             return new OkObjectResult(ticketsUserDTOList);
@@ -296,7 +297,8 @@ namespace BLL.Versions.V1.BusinessLogic
             await punchHistoryDA.CreatePunchHistory(punchHistory);
 
             return new OkObjectResult(
-                ItemToDTO(ticketUser, ticketStore.TotalPunches, store.Name, ticketStore.TicketTypeId));
+                ItemToDTO(ticketUser,
+                ticketStore.TotalPunches, store.Name, ticketStore.TicketTypeId, ticketStore.PunchValue));
         }
         public async Task<ActionResult<TicketUserDTO>> GenerateTempCode(IIdentity userIdentity, long ticketStoreId)
         {
@@ -371,7 +373,8 @@ namespace BLL.Versions.V1.BusinessLogic
             Store store = storeAction.Value;
 
             return new OkObjectResult(
-                ItemToDTO(ticketUser, ticketStore.TotalPunches, store.Name, ticketStore.TicketTypeId));
+                ItemToDTO(ticketUser,
+                ticketStore.TotalPunches, store.Name, ticketStore.TicketTypeId, ticketStore.PunchValue));
         }
 
         /*private static TicketUserDTO ItemToDTO(TicketUser ticketUser) =>
@@ -389,7 +392,7 @@ namespace BLL.Versions.V1.BusinessLogic
             };*/
 
         private static TicketUserDTO ItemToDTO(TicketUser ticketUser,
-            int totalPunches, string storeName, int ticketTypeId) =>
+            int totalPunches, string storeName, int ticketTypeId, long punchValue) =>
             new TicketUserDTO
             {
                 Id = ticketUser.Id,
@@ -403,7 +406,8 @@ namespace BLL.Versions.V1.BusinessLogic
                 CreatedTempCode = ticketUser.CreatedTempCode,
                 TotalPunches = totalPunches,
                 StoreName = storeName,
-                TicketTypeId = ticketTypeId
+                TicketTypeId = ticketTypeId,
+                PunchValue = punchValue
             };
         /*private static string GetValueFromClaim(IIdentity userIdentity, string key)
         {

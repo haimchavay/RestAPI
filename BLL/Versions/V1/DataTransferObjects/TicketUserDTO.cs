@@ -16,5 +16,6 @@ namespace BLL.Versions.V1.DataTransferObjects
         public int TotalPunches { get; set; }
         public string StoreName { get; set; }
         public int TicketTypeId { get; set; }
+        public long PunchValue { get; set; }
     }
 }

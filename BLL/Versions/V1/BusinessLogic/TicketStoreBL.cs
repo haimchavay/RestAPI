@@ -10,6 +10,7 @@ using System.Linq;
 using System.Security.Principal;
 using System;
 using System.Security.Claims;
+using BLL.Versions.V1.Helpers;
 
 namespace BLL.Versions.V1.BusinessLogic
 {
@@ -19,7 +20,8 @@ namespace BLL.Versions.V1.BusinessLogic
 
         public async Task<IActionResult> GetTicketsStores(IIdentity userIdentity)
         {
-            string userIdStr = GetValueFromClaim(userIdentity, "Id");
+            //string userIdStr = GetValueFromClaim(userIdentity, "Id");
+            string userIdStr = Identity.GetValueFromClaim(userIdentity, "Id");
             long userId = Convert.ToInt64(userIdStr);
 
             ActionResult<List<TicketStore>> action = await ticketStoreDA.GetTicketsStoresWithJoin(userId);
@@ -69,7 +71,7 @@ namespace BLL.Versions.V1.BusinessLogic
                 TotalPunches = ticketStore.TotalPunches
             };
 
-        private static string GetValueFromClaim(IIdentity userIdentity, string key)
+        /*private static string GetValueFromClaim(IIdentity userIdentity, string key)
         {
             string value = null;
             if (userIdentity is ClaimsIdentity identity)
@@ -79,6 +81,6 @@ namespace BLL.Versions.V1.BusinessLogic
             }
 
             return value;
-        }
+        }*/
     }
 }
