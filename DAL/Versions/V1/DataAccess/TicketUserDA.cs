@@ -43,7 +43,9 @@ namespace DAL.Versions.V1.DataAccess
                             TotalPunches = ts.TotalPunches,
                             StoreName = s.Name,
                             TicketTypeId = ts.TicketTypeId,
-                            PunchValue = ts.PunchValue
+                            PunchValue = ts.PunchValue,
+                            GiftDescription = ts.GiftDescription
+                            
                         }).ToListAsync();
 
             return await data;
@@ -82,7 +84,8 @@ namespace DAL.Versions.V1.DataAccess
                             TotalPunches = ts.TotalPunches,
                             StoreName = s.Name,
                             TicketTypeId = ts.TicketTypeId,
-                            PunchValue = ts.PunchValue
+                            PunchValue = ts.PunchValue,
+                            GiftDescription = ts.GiftDescription
                         }).ToListAsync();
 
             return await data;
@@ -111,7 +114,8 @@ namespace DAL.Versions.V1.DataAccess
                             TotalPunches = ts.TotalPunches,
                             StoreName = s.Name,
                             TicketTypeId = ts.TicketTypeId,
-                            PunchValue = ts.PunchValue
+                            PunchValue = ts.PunchValue,
+                            GiftDescription = ts.GiftDescription
                         }).ToListAsync();
 
             return await data;

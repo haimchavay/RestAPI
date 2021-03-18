@@ -67,8 +67,8 @@ namespace BLL.Versions.V1.BusinessLogic
                 }
                 TicketType ticketType = ticketTypeAction.Value;
 
-                ticketsUserDTOList.Add(ItemToDTO(ticket,
-                    ticketStore.TotalPunches, store.Name, ticketType.Id, ticketStore.PunchValue));
+                ticketsUserDTOList.Add(ItemToDTO(ticket, ticketStore.TotalPunches, store.Name, ticketType.Id,
+                    ticketStore.PunchValue, ticketStore.GiftDescription));
             }
 
             return new OkObjectResult(ticketsUserDTOList);
@@ -297,8 +297,8 @@ namespace BLL.Versions.V1.BusinessLogic
             await punchHistoryDA.CreatePunchHistory(punchHistory);
 
             return new OkObjectResult(
-                ItemToDTO(ticketUser,
-                ticketStore.TotalPunches, store.Name, ticketStore.TicketTypeId, ticketStore.PunchValue));
+                ItemToDTO(ticketUser, ticketStore.TotalPunches, store.Name, ticketStore.TicketTypeId,
+                ticketStore.PunchValue, ticketStore.GiftDescription));
         }
         public async Task<ActionResult<TicketUserDTO>> GenerateTempCode(IIdentity userIdentity, long ticketStoreId)
         {
@@ -373,8 +373,8 @@ namespace BLL.Versions.V1.BusinessLogic
             Store store = storeAction.Value;
 
             return new OkObjectResult(
-                ItemToDTO(ticketUser,
-                ticketStore.TotalPunches, store.Name, ticketStore.TicketTypeId, ticketStore.PunchValue));
+                ItemToDTO(ticketUser, ticketStore.TotalPunches, store.Name, ticketStore.TicketTypeId,
+                ticketStore.PunchValue, ticketStore.GiftDescription));
         }
 
         /*private static TicketUserDTO ItemToDTO(TicketUser ticketUser) =>
@@ -392,7 +392,7 @@ namespace BLL.Versions.V1.BusinessLogic
             };*/
 
         private static TicketUserDTO ItemToDTO(TicketUser ticketUser,
-            int totalPunches, string storeName, int ticketTypeId, long punchValue) =>
+            int totalPunches, string storeName, int ticketTypeId, long punchValue, string giftDescription) =>
             new TicketUserDTO
             {
                 Id = ticketUser.Id,
@@ -407,7 +407,8 @@ namespace BLL.Versions.V1.BusinessLogic
                 TotalPunches = totalPunches,
                 StoreName = storeName,
                 TicketTypeId = ticketTypeId,
-                PunchValue = punchValue
+                PunchValue = punchValue,
+                GiftDescription = giftDescription
             };
         /*private static string GetValueFromClaim(IIdentity userIdentity, string key)
         {

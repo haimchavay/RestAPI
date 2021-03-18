@@ -8,5 +8,6 @@
         public int TicketPrice { get; set; }
         public int TotalPunches { get; set; }
         public long PunchValue { get; set; }
+        public string GiftDescription { get; set; }
     }
 }
