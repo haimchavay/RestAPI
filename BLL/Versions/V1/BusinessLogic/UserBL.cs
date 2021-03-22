@@ -210,10 +210,10 @@ namespace BLL.Versions.V1.BusinessLogic
                 return new NotFoundObjectResult("user id : " + userId + " not found");
             }
             User user = action.Value;
-            if ( (user.CreatedTempCode != null) && (user.CreatedTempCode.Value.AddMinutes(1) >= DateTime.Now) )
+            /*if ( (user.CreatedTempCode != null) && (user.CreatedTempCode.Value.AddMinutes(1) >= DateTime.Now) )
             {
                 return new NotFoundObjectResult("please wait one minute and try again");
-            }
+            }*/
 
             // Generate temp code(1 - 99999) and insert to ticket user(database)
             tempCode = new Random().Next(10001, 100000);
