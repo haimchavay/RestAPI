@@ -143,7 +143,7 @@ namespace BLL.Versions.V1.BusinessLogic
             return new OkObjectResult(ticketUserDTO);
         }*/
         public async Task<ActionResult<TicketUserDTO>> CreateTicketUser(IIdentity userIdentity, TicketUser ticketUser,
-            int userTempCode, IHubContext<ChatHub> hub)
+            int userTempCode, string userEmail, IHubContext<ChatHub> hub)
         {
             string userIdStr = Identity.GetValueFromClaim(userIdentity, "Id");
             long userId = Convert.ToInt64(userIdStr);
@@ -173,7 +173,17 @@ namespace BLL.Versions.V1.BusinessLogic
                 {
                     return new ConflictObjectResult("Please generate code and pass him");
                 }
-                ActionResult<User> actionUser = await userDA.GetUser(userId);
+                if (string.IsNullOrEmpty(userEmail))
+                {
+                    return new ConflictObjectResult("Please pass email");
+                }
+                /*ActionResult<User> actionUser = await userDA.GetUser(userId);
+                if (actionUser == null || actionUser.Value == null)
+                {
+                    //return new NotFoundResult();
+                    return new NotFoundObjectResult("user id : " + userId + " not found");
+                }*/
+                ActionResult<User> actionUser = await userDA.GetUser(userEmail);
                 if (actionUser == null || actionUser.Value == null)
                 {
                     //return new NotFoundResult();

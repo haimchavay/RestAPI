@@ -112,15 +112,30 @@ namespace BLL.Versions.V1.BusinessLogic
         */
         public async Task<ActionResult<UserDTO>> CreateUser(User user)
         {
+            // Error response members
+            bool email_ = false;
+            bool phone_ = false;
+
             // Email exist in database
             if (userDA.IsEmailExists(user.Email))
             {
-                return new ConflictObjectResult("The email already exists");
+                email_ = true;
+                //return new ConflictObjectResult("The email already exists");
             }
             // Phone exist in database
             if (userDA.IsPhoneExists(user.Phone))
             {
-                return new ConflictObjectResult("The phone already exists");
+                phone_ = true;
+                //return new ConflictObjectResult("The phone already exists");
+            }
+
+            if(email_ | phone_)
+            {
+                return new ConflictObjectResult(new
+                {
+                    email = email_,
+                    phone = phone_
+                });
             }
 
             // Hashing password with BCrypt
