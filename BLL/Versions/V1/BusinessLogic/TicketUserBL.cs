@@ -145,8 +145,45 @@ namespace BLL.Versions.V1.BusinessLogic
         public async Task<ActionResult<TicketUserDTO>> CreateTicketUser(IIdentity userIdentity, TicketUser ticketUser,
             int userTempCode, string userEmail, IHubContext<ChatHub> hub)
         {
-            string userIdStr = Identity.GetValueFromClaim(userIdentity, "Id");
-            long userId = Convert.ToInt64(userIdStr);
+            string userIdStr = null;
+            long userId = 0;
+            User user = null;
+
+            // Check if Cash ticket
+            ActionResult<TicketStore> action = await ticketStoreDA.GetTicketStore(ticketUser.TicketStoreId);
+            if (action == null || action.Value == null)
+            {
+                return new NotFoundResult();
+            }
+            TicketStore ticketStore = action.Value;
+
+            // Cash ticket
+            if(ticketStore.TicketTypeId == CASH_TICKET)
+            {
+                if (string.IsNullOrEmpty(userEmail))
+                {
+                    return new ConflictObjectResult("Please pass email");
+                }
+
+                ActionResult<User> actionUser = await userDA.GetUser(userEmail);
+                if (actionUser == null || actionUser.Value == null)
+                {
+                    //return new NotFoundResult();
+                    return new NotFoundObjectResult("user id : " + userId + " not found");
+                }
+                user = actionUser.Value;
+
+                userId = user.Id;
+                //ticketUser.UserId = userId;
+            }
+            // Regular ticket
+            else
+            {
+                userIdStr = Identity.GetValueFromClaim(userIdentity, "Id");
+                userId = Convert.ToInt64(userIdStr);
+                //ticketUser.UserId = userId;
+            }
+
             ticketUser.UserId = userId;
 
             #region// Get ticket user
@@ -159,37 +196,30 @@ namespace BLL.Versions.V1.BusinessLogic
             }
             #endregion
 
-            // Check if Cash ticket
-            ActionResult<TicketStore> action = await ticketStoreDA.GetTicketStore(ticketUser.TicketStoreId);
-            if (action == null || action.Value == null)
-            {
-                return new NotFoundResult();
-            }
-            TicketStore ticketStore = action.Value;
-
             if(ticketStore.TicketTypeId == CASH_TICKET)
             {
                 if(userTempCode == EMPTY_CODE)
                 {
                     return new ConflictObjectResult("Please generate code and pass him");
                 }
-                if (string.IsNullOrEmpty(userEmail))
+                /*if (string.IsNullOrEmpty(userEmail))
                 {
                     return new ConflictObjectResult("Please pass email");
-                }
+                }*/
                 /*ActionResult<User> actionUser = await userDA.GetUser(userId);
                 if (actionUser == null || actionUser.Value == null)
                 {
                     //return new NotFoundResult();
                     return new NotFoundObjectResult("user id : " + userId + " not found");
                 }*/
-                ActionResult<User> actionUser = await userDA.GetUser(userEmail);
+                /*ActionResult<User> actionUser = await userDA.GetUser(userEmail);
                 if (actionUser == null || actionUser.Value == null)
                 {
                     //return new NotFoundResult();
                     return new NotFoundObjectResult("user id : " + userId + " not found");
                 }
-                User user = actionUser.Value;
+                User user = actionUser.Value;*/
+
                 if(user.TempCode != userTempCode)
                 {
                     return new ConflictObjectResult("Wrong temp code");
