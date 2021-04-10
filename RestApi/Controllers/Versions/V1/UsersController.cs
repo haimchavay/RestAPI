@@ -53,6 +53,12 @@ namespace RestApi.Controllers.Versions.V1
             return await userBL.GenerateTempCode(HttpContext.User.Identity);
         }
 
+        [HttpGet("testfunc/")]
+        public  string Testfunc()
+        {
+            return "suc";
+        }
+
         /*[HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(long id)
         {
