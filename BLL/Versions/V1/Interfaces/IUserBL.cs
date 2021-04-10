@@ -10,7 +10,7 @@ namespace BLL.Versions.V1.Interfaces
 {
     public interface IUserBL
     {
-        Task<IActionResult> GetToken(User userData);
+        Task<IActionResult> GetToken(User userData, bool isAdminPath);
         Task<ActionResult<TicketUserDTO>> GenerateTempCode(IIdentity userIdentity);
         Task<IActionResult> GetPage(PaginationFilter filter, HttpRequest request);
         Task<IActionResult> GetUser(long id);

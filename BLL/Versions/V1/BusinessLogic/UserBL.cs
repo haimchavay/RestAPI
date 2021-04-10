@@ -157,8 +157,26 @@ namespace BLL.Versions.V1.BusinessLogic
 
             return new NoContentResult();
         }
-        public async Task<IActionResult> GetToken(User userData)
+        public async Task<IActionResult> GetToken(User userData, bool isAdminPath)
         {
+            const int REGULAR_USER = 2;
+            if(userData.UserTypeId == null)
+            {
+                return new ConflictObjectResult(new
+                {
+                    message = "Please pass userTypeId inside User object"
+                });
+            }
+
+            // Regular user can't login to admin application
+            if (isAdminPath && userData.UserTypeId == REGULAR_USER)
+            {
+                return new ConflictObjectResult(new
+                {
+                    message = "Regular user can't login to admin"
+                });
+            }
+
             // Verifies request credentials
             if ( !(userData != null && userData.Email != null && userData.Password != null) )
             {

@@ -21,10 +21,17 @@ namespace RestApi.Controllers.Versions.V1
             userBL = new UserBL(config);
         }
 
+
+        [HttpPost("admin/")]
+        public async Task<IActionResult> AdminLogin(User userData)
+        {
+            return await userBL.GetToken(userData, true);
+        }
+
         [HttpPost]
         public async Task<IActionResult> Login(User userData)
         {
-            return await userBL.GetToken(userData);
+            return await userBL.GetToken(userData, false);
         }
     }
 }
