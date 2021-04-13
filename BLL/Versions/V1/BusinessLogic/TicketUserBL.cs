@@ -162,14 +162,21 @@ namespace BLL.Versions.V1.BusinessLogic
             {
                 if (string.IsNullOrEmpty(userEmail))
                 {
-                    return new ConflictObjectResult("Please pass email");
+                    return new ConflictObjectResult(new
+                    {
+                        message = "Please pass email"
+                    });
                 }
+                
 
                 ActionResult<User> actionUser = await userDA.GetUser(userEmail);
                 if (actionUser == null || actionUser.Value == null)
                 {
                     //return new NotFoundResult();
-                    return new NotFoundObjectResult("user id : " + userId + " not found");
+                    return new NotFoundObjectResult(new
+                    {
+                        message = "user id : " + userId + " not found"
+                    });
                 }
                 user = actionUser.Value;
 
@@ -192,7 +199,10 @@ namespace BLL.Versions.V1.BusinessLogic
                 ticketUser.TicketStoreId, TICKET_ACTIVE);
             if (actionTicketUser != null && actionTicketUser.Value != null)
             {
-                return new ConflictObjectResult("The ticket already exists and active");
+                return new ConflictObjectResult(new
+                {
+                    message = "The ticket already exists and active"
+                });
             }
             #endregion
 
@@ -200,7 +210,10 @@ namespace BLL.Versions.V1.BusinessLogic
             {
                 if(userTempCode == EMPTY_CODE)
                 {
-                    return new ConflictObjectResult("Please generate code and pass him");
+                    return new ConflictObjectResult(new
+                    {
+                        message = "Please generate code and pass him"
+                    });
                 }
                 /*if (string.IsNullOrEmpty(userEmail))
                 {
@@ -222,11 +235,17 @@ namespace BLL.Versions.V1.BusinessLogic
 
                 if(user.TempCode != userTempCode)
                 {
-                    return new ConflictObjectResult("Wrong temp code");
+                    return new ConflictObjectResult(new
+                    {
+                        message = "Wrong temp code"
+                    });
                 }
                 if(user.CreatedTempCode.Value.AddMinutes(5) < DateTime.Now)
                 {
-                    return new NotFoundObjectResult("More than five minutes have passed, please try again");
+                    return new NotFoundObjectResult(new
+                    {
+                        message = "More than five minutes have passed, please try again"
+                    });
                 }
 
                 // Remove tempCode and createdTempCode from database
@@ -267,13 +286,19 @@ namespace BLL.Versions.V1.BusinessLogic
             ActionResult<TicketUser> actionTicketUser = await ticketUserDA.GetTicketUser(tempCode, ticketStoreId);
             if (actionTicketUser == null || actionTicketUser.Value == null)
             {
-                return new NotFoundObjectResult("Wrong temp code ");
+                return new NotFoundObjectResult(new
+                {
+                    message = "Wrong temp code"
+                });
             }
             TicketUser ticketUser = actionTicketUser.Value;
 
             if (ticketUser.CreatedTempCode.Value.AddMinutes(5) < DateTime.Now)
             {
-                return new NotFoundObjectResult("More than five minutes have passed, please try again");
+                return new NotFoundObjectResult(new
+                {
+                    message = "More than five minutes have passed, please try again"
+                });
             }
             #endregion
 
@@ -288,7 +313,10 @@ namespace BLL.Versions.V1.BusinessLogic
 
             if (ticketUser.Punch >= ticketStore.TotalPunches || ticketUser.Status == TICKET_UNACTIVE)
             {
-                return new BadRequestObjectResult("Ticket id '" + ticketUser.Id + "' is finish");
+                return new BadRequestObjectResult(new
+                {
+                    message = "Ticket id '" + ticketUser.Id + "' is finish"
+                });
             }
 
             // Make punch in the ticket
@@ -353,8 +381,10 @@ namespace BLL.Versions.V1.BusinessLogic
                 ticketStoreId, TICKET_ACTIVE);
             if (actionTicketUser == null || actionTicketUser.Value == null)
             {
-                return new NotFoundObjectResult("The ticket not exist or unactive");
-                //return new NotFoundResult();
+                return new NotFoundObjectResult(new
+                {
+                    message = "The ticket not exist or unactive"
+                });
             }
             TicketUser ticketUser = actionTicketUser.Value;
             #endregion
@@ -386,7 +416,10 @@ namespace BLL.Versions.V1.BusinessLogic
             // 10 time generate same code with same store id
             if(i == 10)
             {
-                return new NotFoundObjectResult("Please try again or talk with customer service");
+                return new NotFoundObjectResult(new
+                {
+                    message = "Please try again or talk with customer service"
+                });
             }
 
             // Insert temp code to ticket user

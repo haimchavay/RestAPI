@@ -193,12 +193,18 @@ namespace BLL.Versions.V1.BusinessLogic
             var user = await userDA.GetUser(userData.Email);
             if (!(user != null))
             {
-                return new BadRequestObjectResult("Invalid credentials");
+                return new BadRequestObjectResult(new
+                {
+                    message = "Invalid credentials"
+                });
             }
             // Validate userPassword with hashPassword with BCrypt
             if( !Hashing.ValidatePassword(userData.Password, user.Password) )
             {
-                return new BadRequestObjectResult("Invalid credentials");
+                return new BadRequestObjectResult(new
+                {
+                    message = "Invalid credentials"
+                });
             }
 
             //Create claims details based on the user information
@@ -240,7 +246,10 @@ namespace BLL.Versions.V1.BusinessLogic
             if (action == null || action.Value == null)
             {
                 //return new NotFoundResult();
-                return new NotFoundObjectResult("user id : " + userId + " not found");
+                return new NotFoundObjectResult(new
+                {
+                    message = "user id : " + userId + " not found"
+                });
             }
             User user = action.Value;
             /*if ( (user.CreatedTempCode != null) && (user.CreatedTempCode.Value.AddMinutes(1) >= DateTime.Now) )
