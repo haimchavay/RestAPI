@@ -18,5 +18,6 @@ namespace BLL.Versions.V1.DataTransferObjects
         public int TicketTypeId { get; set; }
         public long PunchValue { get; set; }
         public string GiftDescription { get; set; }
+        public string Email { get; set; }
     }
 }

@@ -59,7 +59,20 @@ namespace BLL.Versions.V1.BusinessLogic
                 }
                 Store store = storeAction.Value;
 
+                // Get user
+                ActionResult<User> userAction = await userDA.GetUser(ticket.UserId);
+                if (userAction == null || userAction.Value == null)
+                {
+                    //return new NotFoundResult();
+                    return new NotFoundObjectResult(new
+                    {
+                        message = "user id : " + ticket.UserId + " not found"
+                    });
+                }
+                User userData = userAction.Value;
+
                 // Get ticket type
+                // TODO - remove this ticketTypeAction and use with ticketStore.TicketTypeId
                 ActionResult<TicketType> ticketTypeAction = await ticketTypeDA.GetTicketType(ticketStore.TicketTypeId);
                 if (ticketTypeAction == null || ticketTypeAction.Value == null)
                 {
@@ -68,7 +81,7 @@ namespace BLL.Versions.V1.BusinessLogic
                 TicketType ticketType = ticketTypeAction.Value;
 
                 ticketsUserDTOList.Add(ItemToDTO(ticket, ticketStore.TotalPunches, store.Name, ticketType.Id,
-                    ticketStore.PunchValue, ticketStore.GiftDescription));
+                    ticketStore.PunchValue, ticketStore.GiftDescription, userData.Email));
             }
 
             return new OkObjectResult(ticketsUserDTOList);
@@ -350,6 +363,18 @@ namespace BLL.Versions.V1.BusinessLogic
             }
             Store store = storeAction.Value;
 
+            // Get user
+            ActionResult<User> userAction = await userDA.GetUser(ticketUser.UserId);
+            if (userAction == null || userAction.Value == null)
+            {
+                //return new NotFoundResult();
+                return new NotFoundObjectResult(new
+                {
+                    message = "user id : " + ticketUser.UserId + " not found"
+                });
+            }
+            User userData = userAction.Value;
+
             // Caller chat notification
             await hub.Clients.All.SendAsync(ticketUser.UserId.ToString(), "success", ticketUser);
        
@@ -366,7 +391,7 @@ namespace BLL.Versions.V1.BusinessLogic
 
             return new OkObjectResult(
                 ItemToDTO(ticketUser, ticketStore.TotalPunches, store.Name, ticketStore.TicketTypeId,
-                ticketStore.PunchValue, ticketStore.GiftDescription));
+                ticketStore.PunchValue, ticketStore.GiftDescription, userData.Email));
         }
         public async Task<ActionResult<TicketUserDTO>> GenerateTempCode(IIdentity userIdentity, long ticketStoreId)
         {
@@ -445,9 +470,21 @@ namespace BLL.Versions.V1.BusinessLogic
             }
             Store store = storeAction.Value;
 
+            // Get user
+            ActionResult<User> userAction = await userDA.GetUser(userId);
+            if (userAction == null || userAction.Value == null)
+            {
+                //return new NotFoundResult();
+                return new NotFoundObjectResult(new
+                {
+                    message = "user id : " + userId + " not found"
+                });
+            }
+            User userData = userAction.Value;
+
             return new OkObjectResult(
                 ItemToDTO(ticketUser, ticketStore.TotalPunches, store.Name, ticketStore.TicketTypeId,
-                ticketStore.PunchValue, ticketStore.GiftDescription));
+                ticketStore.PunchValue, ticketStore.GiftDescription, userData.Email));
         }
 
         /*private static TicketUserDTO ItemToDTO(TicketUser ticketUser) =>
@@ -465,7 +502,8 @@ namespace BLL.Versions.V1.BusinessLogic
             };*/
 
         private static TicketUserDTO ItemToDTO(TicketUser ticketUser,
-            int totalPunches, string storeName, int ticketTypeId, long punchValue, string giftDescription) =>
+            int totalPunches, string storeName, int ticketTypeId, long punchValue, string giftDescription,
+            string email) =>
             new TicketUserDTO
             {
                 Id = ticketUser.Id,
@@ -481,7 +519,8 @@ namespace BLL.Versions.V1.BusinessLogic
                 StoreName = storeName,
                 TicketTypeId = ticketTypeId,
                 PunchValue = punchValue,
-                GiftDescription = giftDescription
+                GiftDescription = giftDescription,
+                Email = email
             };
         /*private static string GetValueFromClaim(IIdentity userIdentity, string key)
         {

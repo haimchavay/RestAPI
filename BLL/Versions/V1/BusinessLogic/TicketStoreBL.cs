@@ -24,7 +24,7 @@ namespace BLL.Versions.V1.BusinessLogic
             string userIdStr = Identity.GetValueFromClaim(userIdentity, "Id");
             long userId = Convert.ToInt64(userIdStr);
 
-            // Check if admin
+            // Get user
             ActionResult<User> userAction = await userDA.GetUser(userId);
             if (userAction == null || userAction.Value == null)
             {
