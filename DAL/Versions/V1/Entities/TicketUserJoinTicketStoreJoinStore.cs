@@ -22,5 +22,6 @@ namespace DAL.Versions.V1.Entities
         public int TicketTypeId { get; set; }
         public long PunchValue { get; set; }
         public string GiftDescription { get; set; }
+        public string Email { get; set; }
     }
 }

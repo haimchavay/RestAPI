@@ -46,6 +46,7 @@ namespace DAL.Versions.V1.DataAccess
                             PunchValue = ts.PunchValue,
                             GiftDescription = ts.GiftDescription
                             
+                            
                         }).ToListAsync();
 
             return await data;
@@ -99,6 +100,8 @@ namespace DAL.Versions.V1.DataAccess
                         on tu.TicketStoreId equals ts.Id
                         join s in context.Stores
                         on ts.StoreId equals s.Id
+                        join u in context.Users
+                        on tu.UserId equals u.Id
                         where s.Id == storeId
                         select new TicketUserJoinTicketStoreJoinStore
                         {
@@ -115,7 +118,8 @@ namespace DAL.Versions.V1.DataAccess
                             StoreName = s.Name,
                             TicketTypeId = ts.TicketTypeId,
                             PunchValue = ts.PunchValue,
-                            GiftDescription = ts.GiftDescription
+                            GiftDescription = ts.GiftDescription,
+                            Email = u.Email
                         }).ToListAsync();
 
             return await data;
