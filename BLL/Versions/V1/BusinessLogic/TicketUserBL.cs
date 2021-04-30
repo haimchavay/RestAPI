@@ -1,4 +1,5 @@
-﻿using BLL.Versions.V1.DataTransferObjects;
+﻿using BLL.Versions.V1.Builders;
+using BLL.Versions.V1.DataTransferObjects;
 using BLL.Versions.V1.Helpers;
 using BLL.Versions.V1.Hubs;
 using BLL.Versions.V1.Interfaces;
@@ -10,7 +11,6 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading.Tasks;
 
@@ -64,10 +64,12 @@ namespace BLL.Versions.V1.BusinessLogic
                 if (userAction == null || userAction.Value == null)
                 {
                     //return new NotFoundResult();
-                    return new NotFoundObjectResult(new
-                    {
-                        message = "user id : " + ticket.UserId + " not found"
-                    });
+                    JsonMessageResponse jmResponse = new JsonMessageResponseBuilder()
+                    .WithMessage("UserIdNotFound")
+                    .WithMessageInfo("user id : " + ticket.UserId + " not found")
+                    .Build();
+
+                    return new NotFoundObjectResult(jmResponse);
                 }
                 User userData = userAction.Value;
 
@@ -161,6 +163,7 @@ namespace BLL.Versions.V1.BusinessLogic
             string userIdStr = null;
             long userId = 0;
             User user = null;
+            JsonMessageResponse jmResponse;
 
             // Check if Cash ticket
             ActionResult<TicketStore> action = await ticketStoreDA.GetTicketStore(ticketUser.TicketStoreId);
@@ -175,26 +178,28 @@ namespace BLL.Versions.V1.BusinessLogic
             {
                 if (string.IsNullOrEmpty(userEmail))
                 {
-                    return new ConflictObjectResult(new
-                    {
-                        message = "Please pass email"
-                    });
+                    jmResponse = new JsonMessageResponseBuilder()
+                        .WithMessage("Email")
+                        .WithMessageInfo("Please pass email")
+                        .Build();
+
+                    return new ConflictObjectResult(jmResponse);
                 }
                 
 
                 ActionResult<User> actionUser = await userDA.GetUser(userEmail);
                 if (actionUser == null || actionUser.Value == null)
                 {
-                    //return new NotFoundResult();
-                    return new NotFoundObjectResult(new
-                    {
-                        message = "user id : " + userId + " not found"
-                    });
+                    jmResponse = new JsonMessageResponseBuilder()
+                        .WithMessage("UserIdNotFound")
+                        .WithMessageInfo("user id : " + userId + " not found")
+                        .Build();
+
+                    return new NotFoundObjectResult(jmResponse);
                 }
                 user = actionUser.Value;
 
                 userId = user.Id;
-                //ticketUser.UserId = userId;
             }
             // Regular ticket
             else
@@ -212,10 +217,12 @@ namespace BLL.Versions.V1.BusinessLogic
                 ticketUser.TicketStoreId, TICKET_ACTIVE);
             if (actionTicketUser != null && actionTicketUser.Value != null)
             {
-                return new ConflictObjectResult(new
-                {
-                    message = "The ticket already exists and active"
-                });
+                jmResponse = new JsonMessageResponseBuilder()
+                    .WithMessage("TicketExist")
+                    .WithMessageInfo("The ticket already exists and active")
+                    .Build();
+
+                return new ConflictObjectResult(jmResponse);
             }
             #endregion
 
@@ -223,42 +230,31 @@ namespace BLL.Versions.V1.BusinessLogic
             {
                 if(userTempCode == EMPTY_CODE)
                 {
-                    return new ConflictObjectResult(new
-                    {
-                        message = "Please generate code and pass him"
-                    });
+                    jmResponse = new JsonMessageResponseBuilder()
+                        .WithMessage("GenerateCode")
+                        .WithMessageInfo("Please generate code and pass it")
+                        .Build();
+
+                    return new ConflictObjectResult(jmResponse);
                 }
-                /*if (string.IsNullOrEmpty(userEmail))
-                {
-                    return new ConflictObjectResult("Please pass email");
-                }*/
-                /*ActionResult<User> actionUser = await userDA.GetUser(userId);
-                if (actionUser == null || actionUser.Value == null)
-                {
-                    //return new NotFoundResult();
-                    return new NotFoundObjectResult("user id : " + userId + " not found");
-                }*/
-                /*ActionResult<User> actionUser = await userDA.GetUser(userEmail);
-                if (actionUser == null || actionUser.Value == null)
-                {
-                    //return new NotFoundResult();
-                    return new NotFoundObjectResult("user id : " + userId + " not found");
-                }
-                User user = actionUser.Value;*/
 
                 if(user.TempCode != userTempCode)
                 {
-                    return new ConflictObjectResult(new
-                    {
-                        message = "Wrong temp code"
-                    });
+                    jmResponse = new JsonMessageResponseBuilder()
+                        .WithMessage("WrongTempCode")
+                        .WithMessageInfo("Wrong temp code")
+                        .Build();
+
+                    return new ConflictObjectResult(jmResponse);
                 }
                 if(user.CreatedTempCode.Value.AddMinutes(5) < DateTime.Now)
                 {
-                    return new NotFoundObjectResult(new
-                    {
-                        message = "More than five minutes have passed, please try again"
-                    });
+                    jmResponse = new JsonMessageResponseBuilder()
+                        .WithMessage("FiveMinutesPassed")
+                        .WithMessageInfo("More than five minutes have passed, please try again")
+                        .Build();
+
+                    return new NotFoundObjectResult(jmResponse);
                 }
 
                 // Remove tempCode and createdTempCode from database
@@ -280,7 +276,12 @@ namespace BLL.Versions.V1.BusinessLogic
             await ticketUserDA.CreateTicketUser(ticketUser);
 
             // Caller chat notification
-            await hub.Clients.All.SendAsync(ticketUser.UserId.ToString(), "Ticket user created successfully", ticketUser);
+            jmResponse = new JsonMessageResponseBuilder()
+                .WithEvent("CreateTicketUser")
+                .WithIsSuccess(true)
+                .Build();
+
+            await hub.Clients.All.SendAsync(ticketUser.UserId.ToString(), jmResponse, ticketUser);
 
             ActionResult<List<TicketUserJoinTicketStoreJoinStore>> actionJoin =
                 await ticketUserDA.GetTicketUserWithJoin(userId, ticketUser.TicketStoreId);
@@ -295,23 +296,29 @@ namespace BLL.Versions.V1.BusinessLogic
         public async Task<ActionResult<TicketUserDTO>> CreatePunch(long ticketStoreId, int tempCode,
             IHubContext<ChatHub> hub)
         {
+            JsonMessageResponse jmResponse;
+
             #region// Get ticket user with temp code
             ActionResult<TicketUser> actionTicketUser = await ticketUserDA.GetTicketUser(tempCode, ticketStoreId);
             if (actionTicketUser == null || actionTicketUser.Value == null)
             {
-                return new NotFoundObjectResult(new
-                {
-                    message = "Wrong temp code"
-                });
+                jmResponse = new JsonMessageResponseBuilder()
+                    .WithMessage("WrongTempCode")
+                    .WithMessageInfo("Wrong temp code")
+                    .Build();
+
+                return new NotFoundObjectResult(jmResponse);
             }
             TicketUser ticketUser = actionTicketUser.Value;
 
             if (ticketUser.CreatedTempCode.Value.AddMinutes(5) < DateTime.Now)
             {
-                return new NotFoundObjectResult(new
-                {
-                    message = "More than five minutes have passed, please try again"
-                });
+                jmResponse = new JsonMessageResponseBuilder()
+                    .WithMessage("FiveMinutesPassed")
+                    .WithMessageInfo("More than five minutes have passed, please try again")
+                    .Build();
+
+                return new NotFoundObjectResult(jmResponse);
             }
             #endregion
 
@@ -326,10 +333,12 @@ namespace BLL.Versions.V1.BusinessLogic
 
             if (ticketUser.Punch >= ticketStore.TotalPunches || ticketUser.Status == TICKET_UNACTIVE)
             {
-                return new BadRequestObjectResult(new
-                {
-                    message = "Ticket id '" + ticketUser.Id + "' is finish"
-                });
+                jmResponse = new JsonMessageResponseBuilder()
+                    .WithMessage("TicketIdFinish")
+                    .WithMessageInfo("Ticket id '" + ticketUser.Id + "' is finish")
+                    .Build();
+
+                return new BadRequestObjectResult(jmResponse);
             }
 
             // Make punch in the ticket
@@ -367,16 +376,22 @@ namespace BLL.Versions.V1.BusinessLogic
             ActionResult<User> userAction = await userDA.GetUser(ticketUser.UserId);
             if (userAction == null || userAction.Value == null)
             {
-                //return new NotFoundResult();
-                return new NotFoundObjectResult(new
-                {
-                    message = "user id : " + ticketUser.UserId + " not found"
-                });
+                jmResponse = new JsonMessageResponseBuilder()
+                    .WithMessage("UserIdNotFound")
+                    .WithMessageInfo("user id : " + ticketUser.UserId + " not found")
+                    .Build();
+
+                return new NotFoundObjectResult(jmResponse);
             }
             User userData = userAction.Value;
 
             // Caller chat notification
-            await hub.Clients.All.SendAsync(ticketUser.UserId.ToString(), "success", ticketUser);
+            jmResponse = new JsonMessageResponseBuilder()
+                .WithEvent("CreatePunch")
+                .WithIsSuccess(true)
+                .Build();
+
+            await hub.Clients.All.SendAsync(ticketUser.UserId.ToString(), jmResponse, ticketUser);
        
             // Create punch history
             PunchHistory punchHistory = new PunchHistory
@@ -406,10 +421,12 @@ namespace BLL.Versions.V1.BusinessLogic
                 ticketStoreId, TICKET_ACTIVE);
             if (actionTicketUser == null || actionTicketUser.Value == null)
             {
-                return new NotFoundObjectResult(new
-                {
-                    message = "The ticket not exist or unactive"
-                });
+                JsonMessageResponse jmResponse = new JsonMessageResponseBuilder()
+                    .WithMessage("TicketNotExistOrUnactive")
+                    .WithMessageInfo("The ticket not exist or unactive")
+                    .Build();
+
+                return new NotFoundObjectResult(jmResponse);
             }
             TicketUser ticketUser = actionTicketUser.Value;
             #endregion
@@ -441,10 +458,12 @@ namespace BLL.Versions.V1.BusinessLogic
             // 10 time generate same code with same store id
             if(i == 10)
             {
-                return new NotFoundObjectResult(new
-                {
-                    message = "Please try again or talk with customer service"
-                });
+                JsonMessageResponse jmResponse = new JsonMessageResponseBuilder()
+                    .WithMessage("TryAgain")
+                    .WithMessageInfo("Please try again or talk with customer service")
+                    .Build();
+
+                return new NotFoundObjectResult(jmResponse);
             }
 
             // Insert temp code to ticket user
@@ -474,11 +493,12 @@ namespace BLL.Versions.V1.BusinessLogic
             ActionResult<User> userAction = await userDA.GetUser(userId);
             if (userAction == null || userAction.Value == null)
             {
-                //return new NotFoundResult();
-                return new NotFoundObjectResult(new
-                {
-                    message = "user id : " + userId + " not found"
-                });
+                JsonMessageResponse jmResponse = new JsonMessageResponseBuilder()
+                    .WithMessage("UserIdNotFound")
+                    .WithMessageInfo("user id : " + userId + " not found")
+                    .Build();
+
+                return new NotFoundObjectResult(jmResponse);
             }
             User userData = userAction.Value;
 
@@ -486,20 +506,6 @@ namespace BLL.Versions.V1.BusinessLogic
                 ItemToDTO(ticketUser, ticketStore.TotalPunches, store.Name, ticketStore.TicketTypeId,
                 ticketStore.PunchValue, ticketStore.GiftDescription, userData.Email));
         }
-
-        /*private static TicketUserDTO ItemToDTO(TicketUser ticketUser) =>
-            new TicketUserDTO
-            {
-                Id = ticketUser.Id,
-                UserId = ticketUser.UserId,
-                TicketStoreId = ticketUser.TicketStoreId,
-                Punch = ticketUser.Punch,
-                Status = ticketUser.Status,
-                CreatedDate = ticketUser.CreatedDate,
-                LastPunching = ticketUser.LastPunching,
-                TempCode = ticketUser.TempCode,
-                CreatedTempCode = ticketUser.CreatedTempCode
-            };*/
 
         private static TicketUserDTO ItemToDTO(TicketUser ticketUser,
             int totalPunches, string storeName, int ticketTypeId, long punchValue, string giftDescription,
@@ -522,16 +528,5 @@ namespace BLL.Versions.V1.BusinessLogic
                 GiftDescription = giftDescription,
                 Email = email
             };
-        /*private static string GetValueFromClaim(IIdentity userIdentity, string key)
-        {
-            string value = null;
-            if (userIdentity is ClaimsIdentity identity)
-            {
-                //IEnumerable<Claim> claims = identity.Claims;
-                value = identity.FindFirst(key).Value;
-            }
-
-            return value;
-        }*/
     }
 }

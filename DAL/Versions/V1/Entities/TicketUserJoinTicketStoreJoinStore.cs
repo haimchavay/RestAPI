@@ -23,5 +23,7 @@ namespace DAL.Versions.V1.Entities
         public long PunchValue { get; set; }
         public string GiftDescription { get; set; }
         public string Email { get; set; }
+        // Store photo path
+        public string PhotoPath { get; set; }
     }
 }

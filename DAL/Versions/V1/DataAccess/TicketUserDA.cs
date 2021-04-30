@@ -44,8 +44,8 @@ namespace DAL.Versions.V1.DataAccess
                             StoreName = s.Name,
                             TicketTypeId = ts.TicketTypeId,
                             PunchValue = ts.PunchValue,
-                            GiftDescription = ts.GiftDescription
-                            
+                            GiftDescription = ts.GiftDescription,
+                            PhotoPath = s.PhotoPath
                             
                         }).ToListAsync();
 

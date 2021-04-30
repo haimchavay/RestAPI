@@ -6,11 +6,10 @@ using DAL.Versions.V1.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Linq;
 using System.Security.Principal;
 using System;
-using System.Security.Claims;
 using BLL.Versions.V1.Helpers;
+using BLL.Versions.V1.Builders;
 
 namespace BLL.Versions.V1.BusinessLogic
 {
@@ -29,29 +28,35 @@ namespace BLL.Versions.V1.BusinessLogic
             if (userAction == null || userAction.Value == null)
             {
                 //return new NotFoundResult();
-                return new NotFoundObjectResult(new
-                {
-                    message = "user id : " + userId + " not found"
-                });
+                JsonMessageResponse jmResponse = new JsonMessageResponseBuilder()
+                    .WithMessage("UserIdNotFound")
+                    .WithMessageInfo("user id : " + userId + " not found")
+                    .Build();
+
+                return new NotFoundObjectResult(jmResponse);
             }
             User userData = userAction.Value;
 
             const int REGULAR_USER = 2;
             if (userData.UserTypeId == null)
             {
-                return new ConflictObjectResult(new
-                {
-                    message = "Please pass userTypeId inside User object"
-                });
+                JsonMessageResponse jmResponse = new JsonMessageResponseBuilder()
+                    .WithMessage("PassUserTypeId")
+                    .WithMessageInfo("Please pass userTypeId inside User object")
+                    .Build();
+
+                return new ConflictObjectResult(jmResponse);
             }
 
             // Regular user can't login to admin application
             if (userData.UserTypeId == REGULAR_USER)
             {
-                return new ConflictObjectResult(new
-                {
-                    message = "Regular user can't login to admin"
-                });
+                JsonMessageResponse jmResponse = new JsonMessageResponseBuilder()
+                    .WithMessage("LoginPermission")
+                    .WithMessageInfo("Regular user can't login to admin")
+                    .Build();
+
+                return new ConflictObjectResult(jmResponse);
             }
 
             ActionResult<List<TicketStore>> action = await ticketStoreDA.GetTicketsStoresWithJoin(userId);
@@ -74,14 +79,7 @@ namespace BLL.Versions.V1.BusinessLogic
             }
 
             List<TicketStore> ticketsStoreList = action.Value;
-            /*List<TicketStoreDTO> ticketsStoreDTOList = new List<TicketStoreDTO>();
-
-            foreach (TicketStore ticket in ticketsStoreList)
-            {
-                ticketsStoreDTOList.Add(ItemToDTO(ticket));
-            }
-
-            return new OkObjectResult(ticketsStoreDTOList);*/
+            
             return new OkObjectResult(ticketsStoreList);
         }
         private static TicketStoreDTO ItemToDTO(TicketStore ticketStore) =>
@@ -93,17 +91,5 @@ namespace BLL.Versions.V1.BusinessLogic
                 TicketPrice = ticketStore.TicketPrice,
                 TotalPunches = ticketStore.TotalPunches
             };
-
-        /*private static string GetValueFromClaim(IIdentity userIdentity, string key)
-        {
-            string value = null;
-            if (userIdentity is ClaimsIdentity identity)
-            {
-                //IEnumerable<Claim> claims = identity.Claims;
-                value = identity.FindFirst(key).Value;
-            }
-
-            return value;
-        }*/
     }
 }

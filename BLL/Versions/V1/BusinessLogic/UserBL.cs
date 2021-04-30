@@ -1,4 +1,5 @@
-﻿using BLL.Versions.V1.DataTransferObjects;
+﻿using BLL.Versions.V1.Builders;
+using BLL.Versions.V1.DataTransferObjects;
 using BLL.Versions.V1.Helpers;
 using BLL.Versions.V1.Interfaces;
 using DAL.Versions.V1.DataAccess;
@@ -162,19 +163,23 @@ namespace BLL.Versions.V1.BusinessLogic
             const int REGULAR_USER = 2;
             if(userData.UserTypeId == null)
             {
-                return new ConflictObjectResult(new
-                {
-                    message = "Please pass userTypeId inside User object"
-                });
+                JsonMessageResponse jmResponse = new JsonMessageResponseBuilder()
+                    .WithMessage("PassUserTypeId")
+                    .WithMessageInfo("Please pass userTypeId inside User object")
+                    .Build();
+
+                return new ConflictObjectResult(jmResponse);
             }
 
             // Regular user can't login to admin application
             if (isAdminPath && userData.UserTypeId == REGULAR_USER)
             {
-                return new ConflictObjectResult(new
-                {
-                    message = "Regular user can't login to admin"
-                });
+                JsonMessageResponse jmResponse = new JsonMessageResponseBuilder()
+                    .WithMessage("LoginPermission")
+                    .WithMessageInfo("Regular user can't login to admin")
+                    .Build();
+
+                return new ConflictObjectResult(jmResponse);
             }
 
             // Verifies request credentials
@@ -183,28 +188,25 @@ namespace BLL.Versions.V1.BusinessLogic
                 return new BadRequestResult();
             }
 
-            // Verifies credentials
-            /*var user = await userDA.GetUser(userData.Email, userData.Password);
-            if ( !(user != null) )
-            {
-                return new BadRequestObjectResult("Invalid credentials");
-            }*/
-
             var user = await userDA.GetUser(userData.Email);
             if (!(user != null))
             {
-                return new BadRequestObjectResult(new
-                {
-                    message = "Invalid credentials"
-                });
+                JsonMessageResponse jmResponse = new JsonMessageResponseBuilder()
+                    .WithMessage("InvalidCredentials")
+                    .WithMessageInfo("Invalid credentials")
+                    .Build();
+
+                return new BadRequestObjectResult(jmResponse);
             }
             // Validate userPassword with hashPassword with BCrypt
             if( !Hashing.ValidatePassword(userData.Password, user.Password) )
             {
-                return new BadRequestObjectResult(new
-                {
-                    message = "Invalid credentials"
-                });
+                JsonMessageResponse jmResponse = new JsonMessageResponseBuilder()
+                    .WithMessage("InvalidCredentials")
+                    .WithMessageInfo("Invalid credentials")
+                    .Build();
+
+                return new BadRequestObjectResult(jmResponse);
             }
 
             //Create claims details based on the user information
@@ -245,11 +247,12 @@ namespace BLL.Versions.V1.BusinessLogic
             ActionResult<User> action = await userDA.GetUser(userId);
             if (action == null || action.Value == null)
             {
-                //return new NotFoundResult();
-                return new NotFoundObjectResult(new
-                {
-                    message = "user id : " + userId + " not found"
-                });
+                JsonMessageResponse jmResponse = new JsonMessageResponseBuilder()
+                    .WithMessage("UserIdNotFound")
+                    .WithMessageInfo("user id : " + userId + " not found")
+                    .Build();
+
+                return new NotFoundObjectResult(jmResponse);
             }
             User user = action.Value;
             /*if ( (user.CreatedTempCode != null) && (user.CreatedTempCode.Value.AddMinutes(1) >= DateTime.Now) )
