@@ -275,14 +275,6 @@ namespace BLL.Versions.V1.BusinessLogic
 
             await ticketUserDA.CreateTicketUser(ticketUser);
 
-            // Caller chat notification
-            jmResponse = new JsonMessageResponseBuilder()
-                .WithEvent("CreateTicketUser")
-                .WithIsSuccess(true)
-                .Build();
-
-            await hub.Clients.All.SendAsync(ticketUser.UserId.ToString(), jmResponse, ticketUser);
-
             ActionResult<List<TicketUserJoinTicketStoreJoinStore>> actionJoin =
                 await ticketUserDA.GetTicketUserWithJoin(userId, ticketUser.TicketStoreId);
             if (actionJoin == null || actionJoin.Value == null)
@@ -290,6 +282,14 @@ namespace BLL.Versions.V1.BusinessLogic
                 return new NotFoundResult();
             }
             List<TicketUserJoinTicketStoreJoinStore> ticketJoin = actionJoin.Value;
+
+            // Caller chat notification
+            jmResponse = new JsonMessageResponseBuilder()
+                .WithEvent("CreateTicketUser")
+                .WithIsSuccess(true)
+                .Build();
+
+            await hub.Clients.All.SendAsync(ticketUser.UserId.ToString(), jmResponse, ticketJoin[0]);
 
             return new CreatedAtRouteResult(new { Id = ticketUser.Id }, ticketJoin[0]);
         }
@@ -385,14 +385,6 @@ namespace BLL.Versions.V1.BusinessLogic
             }
             User userData = userAction.Value;
 
-            // Caller chat notification
-            jmResponse = new JsonMessageResponseBuilder()
-                .WithEvent("CreatePunch")
-                .WithIsSuccess(true)
-                .Build();
-
-            await hub.Clients.All.SendAsync(ticketUser.UserId.ToString(), jmResponse, ticketUser);
-       
             // Create punch history
             PunchHistory punchHistory = new PunchHistory
             {
@@ -404,9 +396,18 @@ namespace BLL.Versions.V1.BusinessLogic
             };
             await punchHistoryDA.CreatePunchHistory(punchHistory);
 
-            return new OkObjectResult(
-                ItemToDTO(ticketUser, ticketStore.TotalPunches, store.Name, ticketStore.TicketTypeId,
-                ticketStore.PunchValue, ticketStore.GiftDescription, userData.Email));
+            TicketUserDTO ticketUserDTO = ItemToDTO(ticketUser, ticketStore.TotalPunches, store.Name,
+                ticketStore.TicketTypeId, ticketStore.PunchValue, ticketStore.GiftDescription, userData.Email);
+
+            // Caller chat notification
+            jmResponse = new JsonMessageResponseBuilder()
+                .WithEvent("CreatePunch")
+                .WithIsSuccess(true)
+                .Build();
+
+            await hub.Clients.All.SendAsync(ticketUser.UserId.ToString(), jmResponse, ticketUserDTO);
+
+            return new OkObjectResult(ticketUserDTO);
         }
         public async Task<ActionResult<TicketUserDTO>> GenerateTempCode(IIdentity userIdentity, long ticketStoreId)
         {
