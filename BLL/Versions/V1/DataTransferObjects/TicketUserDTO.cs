@@ -19,5 +19,6 @@ namespace BLL.Versions.V1.DataTransferObjects
         public long PunchValue { get; set; }
         public string GiftDescription { get; set; }
         public string Email { get; set; }
+        public int TicketPrice { get; set; }
     }
 }

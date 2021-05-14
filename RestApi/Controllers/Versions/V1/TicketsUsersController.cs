@@ -41,12 +41,12 @@ namespace RestApi.Controllers.Versions.V1
         }
 
         [HttpPost]
-        public async Task<ActionResult<TicketUserDTO>> CreateTicketUser(TicketUser ticketUser)
+        public async Task<ActionResult<TicketUserJoinTicketStoreJoinStore>> CreateTicketUser(TicketUser ticketUser)
         {
             return await ticketUserBL.CreateTicketUser(HttpContext.User.Identity, ticketUser, 0, "", hub);
         }
         [HttpPost("code/{userTempCode}/email/{userEmail}")]
-        public async Task<ActionResult<TicketUserDTO>> CreateTicketUser(TicketUser ticketUser,
+        public async Task<ActionResult<TicketUserJoinTicketStoreJoinStore>> CreateTicketUser(TicketUser ticketUser,
             int userTempCode, string userEmail)
         {
             return await ticketUserBL.CreateTicketUser(HttpContext.User.Identity, ticketUser,

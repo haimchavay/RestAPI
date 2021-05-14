@@ -25,5 +25,6 @@ namespace DAL.Versions.V1.Entities
         public string Email { get; set; }
         // Store photo path
         public string PhotoPath { get; set; }
+        public int TicketPrice { get; set; }
     }
 }

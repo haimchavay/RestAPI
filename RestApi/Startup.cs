@@ -32,11 +32,18 @@ namespace RestApi
                 .AllowAnyHeader()
                 .AllowAnyMethod());*/
 
-                options.AddPolicy("CorsApi",
+                /*options.AddPolicy("CorsApi",
                     builder => builder.WithOrigins("http://localhost:8100", "http://localhost:8101")
                 .AllowAnyMethod()
                 .AllowAnyHeader()
+                .AllowCredentials());*/
+
+                options.AddPolicy("CorsApi",
+                   builder => builder.WithOrigins("http://localhost:8100", "http://localhost:8101", "http://localhost")
+                   .AllowAnyMethod()
+                .AllowAnyHeader()
                 .AllowCredentials());
+
             });
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>

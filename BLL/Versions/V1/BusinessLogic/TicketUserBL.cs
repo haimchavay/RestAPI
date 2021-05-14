@@ -83,7 +83,7 @@ namespace BLL.Versions.V1.BusinessLogic
                 TicketType ticketType = ticketTypeAction.Value;
 
                 ticketsUserDTOList.Add(ItemToDTO(ticket, ticketStore.TotalPunches, store.Name, ticketType.Id,
-                    ticketStore.PunchValue, ticketStore.GiftDescription, userData.Email));
+                    ticketStore.PunchValue, ticketStore.GiftDescription, userData.Email, ticketStore.TicketPrice));
             }
 
             return new OkObjectResult(ticketsUserDTOList);
@@ -157,7 +157,8 @@ namespace BLL.Versions.V1.BusinessLogic
 
             return new OkObjectResult(ticketUserDTO);
         }*/
-        public async Task<ActionResult<TicketUserDTO>> CreateTicketUser(IIdentity userIdentity, TicketUser ticketUser,
+        public async Task<ActionResult<TicketUserJoinTicketStoreJoinStore>> CreateTicketUser(
+            IIdentity userIdentity, TicketUser ticketUser,
             int userTempCode, string userEmail, IHubContext<ChatHub> hub)
         {
             string userIdStr = null;
@@ -397,7 +398,8 @@ namespace BLL.Versions.V1.BusinessLogic
             await punchHistoryDA.CreatePunchHistory(punchHistory);
 
             TicketUserDTO ticketUserDTO = ItemToDTO(ticketUser, ticketStore.TotalPunches, store.Name,
-                ticketStore.TicketTypeId, ticketStore.PunchValue, ticketStore.GiftDescription, userData.Email);
+                ticketStore.TicketTypeId, ticketStore.PunchValue, ticketStore.GiftDescription, userData.Email,
+                ticketStore.TicketPrice);
 
             // Caller chat notification
             jmResponse = new JsonMessageResponseBuilder()
@@ -505,12 +507,12 @@ namespace BLL.Versions.V1.BusinessLogic
 
             return new OkObjectResult(
                 ItemToDTO(ticketUser, ticketStore.TotalPunches, store.Name, ticketStore.TicketTypeId,
-                ticketStore.PunchValue, ticketStore.GiftDescription, userData.Email));
+                ticketStore.PunchValue, ticketStore.GiftDescription, userData.Email, ticketStore.TicketPrice));
         }
 
         private static TicketUserDTO ItemToDTO(TicketUser ticketUser,
             int totalPunches, string storeName, int ticketTypeId, long punchValue, string giftDescription,
-            string email) =>
+            string email, int ticketPrice) =>
             new TicketUserDTO
             {
                 Id = ticketUser.Id,
@@ -527,7 +529,8 @@ namespace BLL.Versions.V1.BusinessLogic
                 TicketTypeId = ticketTypeId,
                 PunchValue = punchValue,
                 GiftDescription = giftDescription,
-                Email = email
+                Email = email,
+                TicketPrice = ticketPrice
             };
     }
 }

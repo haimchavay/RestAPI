@@ -45,7 +45,8 @@ namespace DAL.Versions.V1.DataAccess
                             TicketTypeId = ts.TicketTypeId,
                             PunchValue = ts.PunchValue,
                             GiftDescription = ts.GiftDescription,
-                            PhotoPath = s.PhotoPath
+                            PhotoPath = s.PhotoPath,
+                            TicketPrice = ts.TicketPrice
                             
                         }).ToListAsync();
 
@@ -86,7 +87,9 @@ namespace DAL.Versions.V1.DataAccess
                             StoreName = s.Name,
                             TicketTypeId = ts.TicketTypeId,
                             PunchValue = ts.PunchValue,
-                            GiftDescription = ts.GiftDescription
+                            GiftDescription = ts.GiftDescription,
+                            PhotoPath = s.PhotoPath,
+                            TicketPrice = ts.TicketPrice
                         }).ToListAsync();
 
             return await data;
@@ -119,7 +122,9 @@ namespace DAL.Versions.V1.DataAccess
                             TicketTypeId = ts.TicketTypeId,
                             PunchValue = ts.PunchValue,
                             GiftDescription = ts.GiftDescription,
-                            Email = u.Email
+                            Email = u.Email,
+                            PhotoPath = s.PhotoPath,
+                            TicketPrice = ts.TicketPrice
                         }).ToListAsync();
 
             return await data;
