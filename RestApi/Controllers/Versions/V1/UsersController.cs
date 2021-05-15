@@ -46,23 +46,25 @@ namespace RestApi.Controllers.Versions.V1
             return await userBL.CreateUser(user);
         }
 
-        [HttpGet("generate/")]
+        // TODO : Needs to remove!! ( move to 'UsersWithAuthorize' controller)
+        /*[HttpGet("generate/")]
         public async Task<ActionResult<TicketUserDTO>> GenerateTempCode()
         {
             //return await ticketUserBL.GenerateTempCode(HttpContext.User.Identity, ticketStoreId);
             return await userBL.GenerateTempCode(HttpContext.User.Identity);
-        }
-
-        [HttpGet("testfunc/")]
-        public  string Testfunc()
-        {
-            return "suc";
-        }
-
-        /*[HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(long id)
-        {
-            return await userBL.DeleteUser(id);
         }*/
+
+        // TODO - Return void
+        [HttpGet("generate/email/{userEmail}")]
+        public async Task<ActionResult> GenerateEmailTempCode(string userEmail)
+        {
+            return await userBL.GenerateEmailTempCode(userEmail);
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> PutUser([FromQuery] PasswordRecovery passwordRecovery)
+        {
+            return await userBL.PutUser(passwordRecovery);
+        }
     }
 }

@@ -69,48 +69,71 @@ namespace BLL.Versions.V1.BusinessLogic
 
             return new OkObjectResult(userDTO);
         }
-        /*
-        public async Task<IActionResult> PutUser(long id, User user)
+
+        public async Task<IActionResult> PutUser(PasswordRecovery passwordRecovery)
         {
-            if (id != user.Id)
+            User user = null;
+            JsonMessageResponse jmResponse;
+
+            // Validate email
+            if (string.IsNullOrEmpty(passwordRecovery.Email))
             {
-                return new BadRequestResult();
+                jmResponse = new JsonMessageResponseBuilder()
+                    .WithMessage("Email")
+                    .WithMessageInfo("Please pass email")
+                    .Build();
+
+                return new ConflictObjectResult(jmResponse);
             }
 
-            ActionResult<User> action = await userDA.GetUser(user.Id);
-            if (action == null || action.Value == null)
+            // Validate email in database
+            ActionResult<User> actionUser = await userDA.GetUser(passwordRecovery.Email);
+            if (actionUser == null || actionUser.Value == null)
             {
-                return new NotFoundResult();
+                jmResponse = new JsonMessageResponseBuilder()
+                    .WithMessage("UserEmailNotFound")
+                    .WithMessageInfo("user email : " + passwordRecovery.Email + " not found")
+                    .Build();
+
+                return new NotFoundObjectResult(jmResponse);
+            }
+            user = actionUser.Value;
+
+            // Validate tempcode
+            if(user.TempCode != passwordRecovery.TempCode)
+            {
+                jmResponse = new JsonMessageResponseBuilder()
+                    .WithMessage("WrongTempCode")
+                    .WithMessageInfo("wrong temp code : " + passwordRecovery.TempCode)
+                    .Build();
+
+                return new NotFoundObjectResult(jmResponse);
+            }
+            // Validate tempcode < 5 minutes
+            if (user.CreatedTempCode.Value.AddMinutes(5) < DateTime.Now)
+            {
+                jmResponse = new JsonMessageResponseBuilder()
+                    .WithMessage("FiveMinutesPassed")
+                    .WithMessageInfo("More than five minutes have passed, please try again")
+                    .Build();
+
+                return new NotFoundObjectResult(jmResponse);
             }
 
-            User userPost = action.Value;
-            userPost.FirstName = user.FirstName;
-            userPost.LastName = user.LastName;
-            userPost.Phone = user.Phone;
-            userPost.Area = user.Area;
-            userPost.City = user.City;
-            userPost.Street = user.Street;
-            userPost.Email = user.Email;
-            userPost.Password = user.Password;
-            userPost.UserName = user.UserName;
-            userPost.CreatedDate = user.CreatedDate;
-            userPost.LastVisited = user.LastVisited;
-            userPost.UserTypeId = user.UserTypeId;
-            userPost.FacebookSocialId = user.FacebookSocialId;
-            userPost.GmailSocialId = user.GmailSocialId;
+            user.Password = Hashing.HashPassword(passwordRecovery.NewPassword);
 
             try
             {
                 await userDA.PutUser(user);
             }
-            catch (DbUpdateConcurrencyException) when (!userDA.Exists(id))
+            catch (DbUpdateConcurrencyException) when (!userDA.Exists(user.Id))
             {
                 return new NotFoundResult();
             }
 
             return new NoContentResult();
         }
-        */
+        
         public async Task<ActionResult<UserDTO>> CreateUser(User user)
         {
             // Error response members
@@ -236,9 +259,8 @@ namespace BLL.Versions.V1.BusinessLogic
             return new OkObjectResult(TokenToTokenDTO(user, tokenStr));
         }
 
-        public async Task<ActionResult<TicketUserDTO>> GenerateTempCode(IIdentity userIdentity)
+        public async Task<ActionResult<UserDTO>> GenerateTempCode(IIdentity userIdentity)
         {
-            int tempCode = 0;
             #region// Get user id
             string userIdStr = Identity.GetValueFromClaim(userIdentity, "Id");
             long userId = Convert.ToInt64(userIdStr);
@@ -255,13 +277,53 @@ namespace BLL.Versions.V1.BusinessLogic
                 return new NotFoundObjectResult(jmResponse);
             }
             User user = action.Value;
-            /*if ( (user.CreatedTempCode != null) && (user.CreatedTempCode.Value.AddMinutes(1) >= DateTime.Now) )
-            {
-                return new NotFoundObjectResult("please wait one minute and try again");
-            }*/
 
+            return await Generate(user);
+        }
+
+        public async Task<ActionResult> GenerateEmailTempCode(string email)
+        {
+            const string MAIL_SUBJECT = "This is mail subject";
+            const string MAIL_BODY_PATTERN = "This is a mail body patter with temp code is : {0}";
+
+            ActionResult<User> action = await userDA.GetUser(email);
+            if (action == null || action.Value == null)
+            {
+                JsonMessageResponse jmResponse = new JsonMessageResponseBuilder()
+                    .WithMessage("UserEmailNotFound")
+                    .WithMessageInfo("user email : " + email + " not found")
+                    .Build();
+
+                return new NotFoundObjectResult(jmResponse);
+            }
+            User user = action.Value;
+
+            UserDTO userDTO = await Generate(user);
+            string body = string.Format(MAIL_BODY_PATTERN, userDTO.TempCode);
+            // Sending email with temp code - password recovery
+            new SmptClientWrapper().SendMail(userDTO.Email, MAIL_SUBJECT, body);
+
+            return new OkResult();
+        }
+
+        private async Task<UserDTO> Generate(User user)
+        {
             // Generate temp code(1 - 99999) and insert to ticket user(database)
-            tempCode = new Random().Next(10001, 100000);
+            int tempCode = new Random().Next(10001, 100000);
+            // Insert temp code to user
+            user.TempCode = tempCode;
+            user.CreatedTempCode = DateTime.Now;
+
+            await userDA.PutUser(user);
+
+            return ItemToDTO(user);
+
+        }
+
+        /*private async Task<ActionResult<TicketUserDTO>> Generate(User user)
+        {
+            // Generate temp code(1 - 99999) and insert to ticket user(database)
+            int tempCode = new Random().Next(10001, 100000);
             // Insert temp code to user
             user.TempCode = tempCode;
             user.CreatedTempCode = DateTime.Now;
@@ -279,7 +341,7 @@ namespace BLL.Versions.V1.BusinessLogic
 
             return new OkObjectResult(
                 ItemToDTO(user));
-        }
+        }*/
 
         private static UserDTO ItemToDTO(User user) =>
             new UserDTO

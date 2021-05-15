@@ -192,8 +192,8 @@ namespace BLL.Versions.V1.BusinessLogic
                 if (actionUser == null || actionUser.Value == null)
                 {
                     jmResponse = new JsonMessageResponseBuilder()
-                        .WithMessage("UserIdNotFound")
-                        .WithMessageInfo("user id : " + userId + " not found")
+                        .WithMessage("UserEmailNotFound")
+                        .WithMessageInfo("user email : " + userEmail + " not found")
                         .Build();
 
                     return new NotFoundObjectResult(jmResponse);
