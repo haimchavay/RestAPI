@@ -16,6 +16,7 @@ namespace BLL.Versions.V1.Interfaces
         //Task<IActionResult> GetTicketUser(long id);
         Task<ActionResult<TicketUserJoinTicketStoreJoinStore>> CreateTicketUser(IIdentity userIdentity, TicketUser ticketUser,
             int usereTmpCode, string userEmail, IHubContext<ChatHub> hub);
+        Task<IActionResult> GetPunchesHistories(long ticketUserId);
         Task<ActionResult<TicketUserDTO>> CreatePunch(long ticketStoreId, int tempCode, IHubContext<ChatHub> hub);
         Task<ActionResult<TicketUserDTO>> GenerateTempCode(IIdentity userIdentity, long ticketStoreId);
     }

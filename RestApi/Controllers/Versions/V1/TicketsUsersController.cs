@@ -53,6 +53,12 @@ namespace RestApi.Controllers.Versions.V1
                 userTempCode, userEmail, hub);
         }
 
+
+        [HttpGet("punchesHistories/{ticketUserId}")]
+        public async Task<IActionResult> GetPunchesHistories(long ticketUserId)
+        {
+            return await ticketUserBL.GetPunchesHistories(ticketUserId);
+        }
         [HttpGet("punch/")]
         public async Task<ActionResult<TicketUserDTO>> CreatePunch([FromQuery] TicketUserDTO ticketUserDTO)
         {

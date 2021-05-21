@@ -294,6 +294,26 @@ namespace BLL.Versions.V1.BusinessLogic
 
             return new CreatedAtRouteResult(new { Id = ticketUser.Id }, ticketJoin[0]);
         }
+
+        public async Task<IActionResult> GetPunchesHistories(long ticketUserId)
+        {
+            // Get punches histories
+            ActionResult<List<PunchHistory>> action = await punchHistoryDA.GetpunchesHistories(ticketUserId);
+            if (action == null || action.Value == null)
+            {
+                //return new NotFoundResult();
+                JsonMessageResponse jmResponse = new JsonMessageResponseBuilder()
+                    .WithMessage("ticketUserId")
+                    .WithMessageInfo("ticket user id : " + ticketUserId + " not found")
+                    .Build();
+
+                return new NotFoundObjectResult(jmResponse);
+            }
+            List<PunchHistory> punchesHistoriesList = action.Value;
+
+            return new OkObjectResult(punchesHistoriesList);
+        }
+
         public async Task<ActionResult<TicketUserDTO>> CreatePunch(long ticketStoreId, int tempCode,
             IHubContext<ChatHub> hub)
         {
@@ -389,9 +409,11 @@ namespace BLL.Versions.V1.BusinessLogic
             // Create punch history
             PunchHistory punchHistory = new PunchHistory
             {
-                Id = Guid.NewGuid().ToString(),
+                //Id = Guid.NewGuid().ToString(),
+                Id = Guid.NewGuid(),
                 UserId = ticketUser.UserId,
                 TicketStoreId = ticketUser.TicketStoreId,
+                TicketUserId = ticketUser.Id,
                 Punch = ticketUser.Punch,
                 CreatedDate = (DateTime)ticketUser.LastPunching
             };
