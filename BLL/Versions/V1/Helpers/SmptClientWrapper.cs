@@ -12,19 +12,24 @@ namespace BLL.Versions.V1.Helpers
         {
             SmtpClient client = new SmtpClient()
             {
-                Host = "smtp.gmail.com",
+                //Host = "smtp.gmail.com",
+                Host = "hgws23.win.hostgator.com",
                 Port = 587,
+                //Port = 465,
                 EnableSsl = true,
                 DeliveryMethod = SmtpDeliveryMethod.Network,
                 UseDefaultCredentials = false,
                 Credentials = new NetworkCredential()
                 {
-                    UserName = "getcouponticketnoreply@gmail.com",
-                    Password = "dawxsedvajnwlpbi"
+                    //UserName = "getcouponticketnoreply@gmail.com",
+                    UserName = "fpnoreply@getcouponticket.com",
+                    //Password = "dawxsedvajnwlpbi"
+                    Password = "^Ztja718"
                 }
             };
 
-            MailAddress fromEmail = new MailAddress("getcouponticketnoreply@gmail.com", "sender email");
+            //MailAddress fromEmail = new MailAddress("getcouponticketnoreply@gmail.com", "sender email");
+            MailAddress fromEmail = new MailAddress("fpnoreply@getcouponticket.com", "sender email");
             MailAddress toEmail = new MailAddress(receivermail, "reciver email");
             MailMessage message = new MailMessage()
             {
