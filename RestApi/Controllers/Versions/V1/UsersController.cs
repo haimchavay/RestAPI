@@ -61,7 +61,7 @@ namespace RestApi.Controllers.Versions.V1
             return await userBL.GenerateEmailTempCode(userEmail);
         }
 
-        [HttpPut]
+        [HttpGet]
         public async Task<IActionResult> PutUser([FromQuery] PasswordRecovery passwordRecovery)
         {
             return await userBL.PutUser(passwordRecovery);
